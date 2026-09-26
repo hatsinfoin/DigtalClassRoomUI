@@ -1,0 +1,25 @@
+.progress-ring-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .progress-ring-svg {
+    transform: rotate(-90deg);
+  }
+
+  .progress-ring-fill {
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .progress-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    color: #FFFFFF;
+    font-size: 13px;
+  }
+}

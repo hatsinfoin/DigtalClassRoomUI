@@ -1,0 +1,29 @@
+.teacher-tab-bar {
+  --background: rgba(13, 17, 23, 0.95);
+  --border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+
+  ion-tab-button {
+    --color: rgba(255, 255, 255, 0.5);
+    --color-selected: #2563EB;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    ion-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+
+    &.tab-selected {
+      font-weight: 700;
+      ion-icon {
+        filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.6));
+      }
+    }
+  }
+}

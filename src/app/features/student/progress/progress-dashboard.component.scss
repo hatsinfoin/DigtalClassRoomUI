@@ -1,0 +1,262 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.progress-dashboard-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .dashboard-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .dashboard-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .dashboard-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+    }
+  }
+
+  .overall-card {
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: var(--radius-2xl, 24px);
+
+    .overall-left {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      .report-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #8B85FF;
+        background: rgba(108, 99, 255, 0.15);
+        padding: 3px 10px;
+        border-radius: var(--radius-full, 9999px);
+        align-self: flex-start;
+      }
+
+      .grade-display {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+
+        .grade-letter {
+          font-family: 'Outfit', sans-serif;
+          font-size: 44px;
+          font-weight: 800;
+          color: #00D9A3;
+          line-height: 1;
+        }
+
+        .grade-details {
+          display: flex;
+          flex-direction: column;
+
+          .pct-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+          }
+
+          .label-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+
+      .streak-box {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        padding: 6px 12px;
+        border-radius: var(--radius-md, 12px);
+
+        .streak-icon {
+          font-size: 14px;
+        }
+
+        .streak-text {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          color: #FBBF24;
+        }
+      }
+    }
+  }
+
+  .section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .subject-grades-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+
+      .subject-grade-card {
+        padding: 16px 20px;
+        border-radius: var(--radius-xl, 20px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .subject-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .subject-grade-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6C63FF;
+            background: rgba(108, 99, 255, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+          }
+        }
+
+        .score-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .progress-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+
+            .progress-fill {
+              height: 100%;
+              background: linear-gradient(90deg, #6C63FF, #00D9A3);
+              border-radius: 4px;
+            }
+          }
+
+          .pct-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+          }
+        }
+
+        .exam-stats {
+          display: flex;
+          justify-content: space-between;
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.45);
+        }
+      }
+    }
+
+    .exams-table-card {
+      border-radius: var(--radius-xl, 20px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      .exam-row {
+        padding: 14px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .exam-main {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .exam-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .exam-date {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.45);
+          }
+        }
+
+        .exam-score {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .score-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+          }
+
+          .exam-grade {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #00D9A3;
+            background: rgba(0, 217, 163, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+          }
+        }
+      }
+    }
+  }
+}

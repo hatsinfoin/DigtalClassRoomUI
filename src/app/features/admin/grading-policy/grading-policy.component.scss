@@ -1,0 +1,168 @@
+.admin-page-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+
+    .title-group {
+      h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 6px 0;
+      }
+      p {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+      }
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, #00d9a3, #059669);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 24px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 163, 0.4);
+      }
+    }
+  }
+
+  .school-selector-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
+
+    select {
+      background: #161b22;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 13px;
+      outline: none;
+      min-width: 260px;
+
+      &:focus {
+        border-color: #6366f1;
+      }
+    }
+  }
+
+  .glass-card {
+    background: rgba(22, 27, 34, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 24px;
+  }
+
+  .table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      color: #fff;
+      margin: 0;
+    }
+
+    .add-tier-btn {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(99, 102, 241, 0.25);
+      }
+    }
+  }
+
+  .tier-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+
+      input {
+        background: #1c2128;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        padding: 8px 12px;
+        font-size: 14px;
+        outline: none;
+        width: 100%;
+
+        &:focus {
+          border-color: #6366f1;
+        }
+      }
+    }
+
+    .btn-delete-row {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+
+      &:hover {
+        background: rgba(255, 107, 107, 0.2);
+      }
+    }
+  }
+}

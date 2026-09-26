@@ -1,0 +1,8 @@
+{
+  "name": "DigtalClassRoom",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone",
+  "defaultProject": "app"
+}

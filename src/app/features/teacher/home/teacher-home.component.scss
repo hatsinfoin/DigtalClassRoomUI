@@ -1,0 +1,256 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.teacher-home-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .teacher-header {
+    padding: 20px 24px;
+    border-radius: var(--radius-2xl, 24px);
+
+    .teacher-profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .role-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #60A5FA;
+        background: rgba(37, 99, 235, 0.15);
+        padding: 3px 10px;
+        border-radius: var(--radius-full, 9999px);
+        align-self: flex-start;
+      }
+
+      .teacher-name {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .teacher-school {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+
+    @media (min-width: 600px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-card {
+      padding: 16px;
+      border-radius: var(--radius-xl, 20px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .stat-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md, 12px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+
+        &.students { background: rgba(37, 99, 235, 0.15); }
+        &.activities { background: rgba(16, 185, 129, 0.15); }
+        &.attendance { background: rgba(245, 158, 11, 0.15); }
+        &.standards { background: rgba(168, 85, 247, 0.15); }
+      }
+
+      .stat-details {
+        display: flex;
+        flex-direction: column;
+
+        .stat-num {
+          font-family: 'Outfit', sans-serif;
+          font-size: 18px;
+          font-weight: 800;
+          color: #FFFFFF;
+        }
+
+        .stat-lbl {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+  }
+
+  .quick-actions-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+
+      .action-btn {
+        padding: 18px;
+        border-radius: var(--radius-xl, 20px);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          border-color: rgba(37, 99, 235, 0.4);
+        }
+
+        .action-icon {
+          font-size: 24px;
+        }
+
+        .action-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #FFFFFF;
+        }
+
+        .action-desc {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+      }
+    }
+  }
+
+  .recent-activities-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .section-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .view-all-btn {
+        background: transparent;
+        border: none;
+        color: #60A5FA;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    }
+
+    .activities-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .activity-row {
+        padding: 16px 20px;
+        border-radius: var(--radius-xl, 20px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateX(4px);
+        }
+
+        .activity-main {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+
+          .act-type-tag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #60A5FA;
+            text-transform: uppercase;
+          }
+
+          .act-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .act-meta {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+          }
+        }
+
+        .activity-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .status-chip {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: var(--radius-full, 9999px);
+
+            &.published {
+              background: rgba(0, 217, 163, 0.15);
+              color: #00D9A3;
+            }
+          }
+
+          .arrow {
+            color: rgba(255, 255, 255, 0.4);
+          }
+        }
+      }
+    }
+  }
+}

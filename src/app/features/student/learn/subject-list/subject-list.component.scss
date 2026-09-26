@@ -1,0 +1,140 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subject-list-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 120px var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 24px);
+  max-width: 900px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .page-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+    }
+
+    .search-bar {
+      margin-top: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: var(--radius-xl, 20px);
+
+      .search-icon {
+        width: 18px;
+        height: 18px;
+        color: rgba(255, 255, 255, 0.4);
+      }
+
+      .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+
+        &:focus {
+          outline: none;
+        }
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.35);
+        }
+      }
+    }
+  }
+
+  .subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+
+    .subject-card {
+      padding: 20px;
+      border-radius: var(--radius-2xl, 24px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      }
+
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .icon-circle {
+          font-size: 32px;
+        }
+      }
+
+      .card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 14px 0;
+
+        .subject-name {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0;
+        }
+
+        .subject-code {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.7);
+        }
+      }
+
+      .card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+        .action-label {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          color: #FFFFFF;
+        }
+
+        .arrow {
+          font-size: 14px;
+          color: #FFFFFF;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,188 @@
+.downloads-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .downloads-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #8B85FF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .header-card {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .header-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #00D9A3;
+        background: rgba(0, 217, 163, 0.15);
+        padding: 2px 8px;
+        border-radius: var(--radius-full, 9999px);
+        align-self: flex-start;
+        text-transform: uppercase;
+      }
+
+      .header-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .header-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+  }
+
+  .stats-card {
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-radius: var(--radius-xl, 20px);
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+
+      .stat-value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        color: #6C63FF;
+      }
+
+      .stat-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .cached-list {
+    padding: 20px;
+    border-radius: var(--radius-xl, 20px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .list-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .cache-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .row-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .row-icon {
+          font-size: 22px;
+        }
+
+        .row-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .row-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF;
+          }
+
+          .row-size {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+
+      .status-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #00D9A3;
+        background: rgba(0, 217, 163, 0.12);
+        padding: 3px 8px;
+        border-radius: var(--radius-full, 9999px);
+      }
+    }
+  }
+
+  .actions-group {
+    .clear-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-xl, 20px);
+      border: 1px solid rgba(255, 107, 107, 0.25);
+      background: rgba(255, 107, 107, 0.08);
+      color: #FF8E8E;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: rgba(255, 107, 107, 0.18);
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.create-activity-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .create-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #60A5FA;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0;
+    }
+  }
+
+  .error-box {
+    padding: 12px 16px;
+    border-radius: var(--radius-md, 12px);
+    border: 1px solid rgba(255, 107, 107, 0.35);
+    background: rgba(255, 107, 107, 0.12);
+    color: #FF8E8E;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+  }
+
+  .form-card {
+    padding: 24px;
+    border-radius: var(--radius-2xl, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+
+      @media (min-width: 550px) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .form-label {
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .form-input, .form-select {
+        background: rgba(28, 33, 40, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: var(--radius-md, 12px);
+        padding: 12px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #FFFFFF;
+
+        &:focus {
+          outline: none;
+          border-color: #2563EB;
+        }
+      }
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #2563EB, #3B82F6);
+      color: #FFFFFF;
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-md, 12px);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}

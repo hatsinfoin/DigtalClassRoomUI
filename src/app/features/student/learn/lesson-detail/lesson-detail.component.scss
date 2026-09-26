@@ -1,0 +1,218 @@
+.lesson-detail-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 24px);
+  max-width: 900px;
+  margin: 0 auto;
+
+  .detail-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #8B85FF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .lesson-hero-card {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .chapter-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: #8B85FF;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .lesson-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .lesson-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+  }
+
+  .modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+
+    .mode-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 190px;
+      cursor: pointer;
+      border-radius: var(--radius-2xl, 24px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        border-color: rgba(108, 99, 255, 0.4);
+      }
+
+      .mode-icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-xl, 20px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      &.read-mode .mode-icon-circle { background: rgba(59, 130, 246, 0.15); }
+      &.media-mode .mode-icon-circle { background: rgba(236, 72, 153, 0.15); }
+      &.practice-mode .mode-icon-circle { background: rgba(16, 185, 129, 0.15); }
+      &.ai-mode .mode-icon-circle { background: rgba(168, 85, 247, 0.15); }
+
+      .mode-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 14px 0;
+
+        .mode-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 17px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0;
+        }
+
+        .mode-desc {
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.65);
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+
+      .mode-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: var(--radius-full, 9999px);
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: #6C63FF;
+        }
+      }
+    }
+  }
+
+  .units-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+
+    .section-heading {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .units-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .unit-card {
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateX(4px);
+        }
+
+        .unit-number {
+          font-family: 'Outfit', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #8B85FF;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(108, 99, 255, 0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .unit-details {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .unit-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .unit-type {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+          }
+        }
+
+        .unit-arrow {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+  }
+}

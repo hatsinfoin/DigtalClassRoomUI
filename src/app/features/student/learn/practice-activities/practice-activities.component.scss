@@ -1,0 +1,151 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.practice-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .practice-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #8B85FF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .practice-title-card {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .practice-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: #10B981;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .practice-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .practice-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+  }
+
+  .activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .activity-card {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(16, 185, 129, 0.4);
+      }
+
+      .activity-type-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-xl, 20px);
+        background: rgba(16, 185, 129, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+
+      .activity-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .type-tag {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: #10B981;
+          text-transform: uppercase;
+        }
+
+        .activity-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0;
+        }
+
+        .activity-meta {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+      }
+
+      .start-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        border: none;
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 9px 18px;
+        border-radius: var(--radius-full, 9999px);
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: scale(1.04);
+        }
+      }
+    }
+  }
+}

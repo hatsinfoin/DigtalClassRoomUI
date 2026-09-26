@@ -1,0 +1,67 @@
+.empty-state-wrapper {
+  margin: var(--space-4, 16px);
+  padding: var(--space-8, 32px) var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--radius-2xl, 24px);
+
+  .empty-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full, 9999px);
+    background: rgba(108, 99, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B85FF;
+    margin-bottom: var(--space-4, 16px);
+
+    .empty-svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .empty-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: var(--space-4, 16px) 0 8px 0;
+  }
+
+  .empty-message {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 320px;
+    line-height: 1.5;
+    margin: 0 0 var(--space-6, 24px) 0;
+  }
+
+  .empty-cta-btn {
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(135deg, #6C63FF, #8B85FF);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--radius-full, 9999px);
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(108, 99, 255, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(108, 99, 255, 0.5);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

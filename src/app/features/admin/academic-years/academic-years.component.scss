@@ -1,0 +1,280 @@
+.admin-page-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+
+    .title-group {
+      h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 6px 0;
+      }
+      p {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+      }
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      }
+    }
+  }
+
+  .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  .glass-card {
+    background: rgba(22, 27, 34, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 24px;
+    transition: transform 0.2s, border-color 0.2s;
+
+    &.active-card {
+      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  .year-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+
+    .year-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 4px 0;
+    }
+
+    .year-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 20px;
+
+      &.active {
+        background: rgba(0, 217, 163, 0.15);
+        color: #00d9a3;
+        border: 1px solid rgba(0, 217, 163, 0.3);
+      }
+
+      &.inactive {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.4);
+      }
+    }
+  }
+
+  .date-range-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    .date-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .date-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+      }
+      .date-value {
+        font-size: 13px;
+        font-weight: 500;
+        color: #fff;
+      }
+    }
+  }
+
+  .card-footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    button {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: #6366f1;
+      }
+    }
+  }
+
+  // Modal
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+
+    .modal-dialog {
+      background: #161b22;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 500px;
+      padding: 28px;
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        h2 {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 20px;
+          color: #fff;
+          margin: 0;
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          color: rgba(255, 255, 255, 0.5);
+          font-size: 20px;
+          cursor: pointer;
+        }
+      }
+
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+
+          label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+          }
+
+          input, select {
+            padding: 10px 14px;
+            background: #1c2128;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+
+            &:focus {
+              border-color: #6366f1;
+            }
+          }
+
+          .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+
+            input[type="checkbox"] {
+              width: 18px;
+              height: 18px;
+              accent-color: #6366f1;
+            }
+          }
+        }
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+
+        button {
+          padding: 10px 20px;
+          border-radius: 10px;
+          font-family: 'Outfit', sans-serif;
+          font-weight: 600;
+          font-size: 14px;
+          cursor: pointer;
+          border: none;
+
+          &.btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+          }
+
+          &.btn-primary {
+            background: #6366f1;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+}

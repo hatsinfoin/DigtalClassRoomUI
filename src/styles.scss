@@ -1,0 +1,346 @@
+// ──────────────────────────────────────────────────────────────
+//  DigitalClassRoom — Global Styles
+//  EduPulse Design System | Ionic + Angular Standalone
+// ──────────────────────────────────────────────────────────────
+
+@use './theme/variables' as *;
+
+// Ionic core styles
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+// ============================================================
+// GLOBAL RESET & BASE
+// ============================================================
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--font-base, 16px);
+  scroll-behavior: smooth;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+app-root, ion-app {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+ion-router-outlet > * {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ion-page {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Telugu text — MANDATORY: Noto Sans Telugu, never normalize()
+.text-telugu,
+[lang="te"],
+.telugu {
+  font-family: var(--font-telugu) !important;
+  // NOTE: Never apply normalize() or trim() to Telugu strings — Invariant I3
+}
+
+// ============================================================
+// TYPOGRAPHY UTILITIES
+// ============================================================
+.font-heading  { font-family: var(--font-heading); }
+.font-body     { font-family: var(--font-body); }
+.font-ui       { font-family: var(--font-ui); }
+
+.text-primary   { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted     { color: var(--text-muted); }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+// ============================================================
+// GLASSMORPHISM STANDARD
+// ============================================================
+.glass-card {
+  background: rgba(22, 27, 34, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-xl);
+}
+
+.glass-card-light {
+  background: rgba(28, 33, 40, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+// ============================================================
+// GRADIENT UTILITIES (Subject Cards)
+// ============================================================
+.grad-math    { background: var(--grad-math); }
+.grad-science { background: var(--grad-science); }
+.grad-telugu  { background: var(--grad-telugu); }
+.grad-english { background: var(--grad-english); }
+.grad-history { background: var(--grad-history); }
+.grad-evs     { background: var(--grad-evs); }
+.grad-default { background: var(--grad-default); }
+
+// ============================================================
+// PORTAL COLOR UTILITIES
+// ============================================================
+.portal-student { --portal-primary: var(--student-primary); --portal-glow: var(--student-glow); }
+.portal-teacher { --portal-primary: var(--teacher-primary); --portal-glow: var(--teacher-glow); }
+.portal-parent  { --portal-primary: var(--parent-primary);  --portal-glow: var(--parent-glow); }
+.portal-admin   { --portal-primary: var(--admin-primary);   --portal-glow: var(--admin-glow); }
+
+// ============================================================
+// STATUS BADGE UTILITIES
+// ============================================================
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-success  { background: var(--color-success-bg); color: var(--color-success); }
+.badge-warning  { background: var(--color-warning-bg); color: var(--color-warning); }
+.badge-danger   { background: var(--color-danger-bg);  color: var(--color-danger); }
+.badge-info     { background: var(--color-info-bg);    color: var(--color-info); }
+.badge-muted    { background: rgba(148, 163, 184, 0.12); color: var(--color-offline); }
+
+// ============================================================
+// CARD BASE
+// ============================================================
+.edu-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ============================================================
+// SHIMMER SKELETON (Never use spinner — EduPulse rule)
+// ============================================================
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    var(--surface-3) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+// ============================================================
+// PAGE ENTER ANIMATION — 380ms ease-out
+// ============================================================
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageEnter var(--transition-slow) forwards;
+}
+
+// Staggered card list (50ms between cards)
+@for $i from 1 through 20 {
+  .stagger-#{$i} {
+    animation-delay: #{($i - 1) * 50}ms;
+  }
+}
+
+// ============================================================
+// BOUNCE ANIMATION (Early age group)
+// ============================================================
+@keyframes bounceIn {
+  0%   { transform: scale(0.6); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  80%  { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+[data-age-group='early'] .bounce-in {
+  animation: bounceIn 0.5s var(--transition-spring) forwards;
+}
+
+[data-age-group='senior'] * {
+  animation-duration: 0ms !important;
+  transition-duration: 0ms !important;
+}
+
+// ============================================================
+// CONFETTI (Exam submit success)
+// ============================================================
+@keyframes confettiFall {
+  0%   { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confettiFall 2s ease-in forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+// ============================================================
+// OFFLINE SHAKE ANIMATION
+// ============================================================
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-4px); }
+  40%       { transform: translateX(4px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+
+.shake { animation: shake 0.5s ease; }
+
+// ============================================================
+// IONIC COMPONENT OVERRIDES
+// ============================================================
+ion-content {
+  --background: var(--bg-app);
+}
+
+ion-toolbar {
+  --background: var(--surface-1);
+  --border-color: var(--border-subtle);
+  --color: var(--text-primary);
+}
+
+ion-tab-bar {
+  --background: var(--surface-1);
+  --border: 1px solid var(--border-subtle);
+  height: 60px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+ion-tab-button {
+  --color: var(--text-muted);
+  --color-selected: var(--portal-primary, var(--student-primary));
+  font-family: var(--font-ui);
+  font-size: 11px;
+  min-height: var(--tap-target, 44px);
+}
+
+ion-card {
+  --background: var(--surface-2);
+  --color: var(--text-primary);
+  margin: var(--space-3);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  box-shadow: none;
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--border-subtle);
+  --color: var(--text-primary);
+  --min-height: var(--tap-target, 44px);
+}
+
+ion-button {
+  --border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  min-height: var(--tap-target, 44px);
+  transition: transform var(--transition-fast);
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+ion-input, ion-textarea, ion-select {
+  --background: var(--surface-2);
+  --color: var(--text-primary);
+  --placeholder-color: var(--text-muted);
+  --border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+ion-modal {
+  --background: var(--surface-1);
+}
+
+ion-toast {
+  --border-radius: var(--radius-lg);
+  font-family: var(--font-ui);
+}
+
+// ============================================================
+// SAFE AREA / NOTCH SUPPORT
+// ============================================================
+.safe-top    { padding-top: max(var(--space-4), env(safe-area-inset-top)); }
+.safe-bottom { padding-bottom: max(var(--space-4), env(safe-area-inset-bottom)); }
+
+// ============================================================
+// SCROLLBAR STYLING (Desktop / Admin Panel)
+// ============================================================
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: var(--radius-full); }

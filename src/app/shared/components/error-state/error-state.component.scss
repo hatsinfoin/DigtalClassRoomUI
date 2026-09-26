@@ -1,0 +1,71 @@
+.error-state-card {
+  margin: var(--space-4, 16px);
+  padding: var(--space-8, 32px) var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--radius-2xl, 24px);
+  border: 1px solid rgba(255, 107, 107, 0.25);
+
+  .error-icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full, 9999px);
+    background: rgba(255, 107, 107, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-danger, #FF6B6B);
+    margin-bottom: var(--space-4, 16px);
+
+    .error-svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .error-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin: 0 0 8px 0;
+  }
+
+  .error-message {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 320px;
+    line-height: 1.5;
+    margin: 0 0 var(--space-6, 24px) 0;
+  }
+
+  .error-retry-btn {
+    font-family: 'Outfit', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 107, 107, 0.15);
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: #FF8E8E;
+    border-radius: var(--radius-full, 9999px);
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    .retry-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      background: rgba(255, 107, 107, 0.25);
+      color: #FFFFFF;
+    }
+  }
+}

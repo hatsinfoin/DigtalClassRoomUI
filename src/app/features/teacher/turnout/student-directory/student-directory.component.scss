@@ -1,0 +1,157 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.directory-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .directory-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #60A5FA;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .page-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .page-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+
+    .search-bar {
+      padding: 8px 16px;
+      border-radius: var(--radius-xl, 20px);
+
+      .search-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        outline: none;
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.35);
+        }
+      }
+    }
+  }
+
+  .students-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .student-card {
+      padding: 14px 20px;
+      border-radius: var(--radius-xl, 20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(37, 99, 235, 0.4);
+      }
+
+      .card-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+
+        .avatar-circle {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: rgba(37, 99, 235, 0.15);
+          color: #60A5FA;
+          font-family: 'Outfit', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .student-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .student-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .student-sub {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.55);
+          }
+        }
+      }
+
+      .card-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .parent-contact {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
+        }
+
+        .arrow {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    }
+  }
+}

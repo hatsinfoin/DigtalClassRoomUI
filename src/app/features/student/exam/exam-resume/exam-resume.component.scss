@@ -1,0 +1,89 @@
+.resume-container {
+  min-height: 100vh;
+  background: var(--bg-app, #0D1117);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+
+  .resume-card {
+    max-width: 480px;
+    width: 100%;
+    padding: 32px 24px;
+    border-radius: var(--radius-2xl, 24px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+
+    .session-badge {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #00D9A3;
+      background: rgba(0, 217, 163, 0.15);
+      padding: 3px 10px;
+      border-radius: var(--radius-full, 9999px);
+      text-transform: uppercase;
+    }
+
+    .resume-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .resume-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .actions-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 10px;
+
+      .resume-btn {
+        background: linear-gradient(135deg, #6C63FF, #8B85FF);
+        color: #FFFFFF;
+        border: none;
+        padding: 14px;
+        border-radius: var(--radius-xl, 20px);
+        font-family: 'Outfit', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+      }
+
+      .discard-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.6);
+        padding: 12px;
+        border-radius: var(--radius-xl, 20px);
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+          color: #FF6B6B;
+          border-color: rgba(255, 107, 107, 0.4);
+        }
+      }
+    }
+  }
+}

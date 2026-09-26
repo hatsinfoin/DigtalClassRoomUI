@@ -1,0 +1,132 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.content-browser-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .browser-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .page-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .page-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0;
+      }
+    }
+  }
+
+  .filter-pills-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-pill {
+      background: rgba(28, 33, 40, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: var(--radius-full, 9999px);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.active {
+        background: #2563EB;
+        color: #FFFFFF;
+        border-color: #2563EB;
+      }
+    }
+  }
+
+  .lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .lesson-card {
+      padding: 16px 20px;
+      border-radius: var(--radius-xl, 20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .lesson-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .chapter-tag {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: #60A5FA;
+          text-transform: uppercase;
+        }
+
+        .lesson-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #FFFFFF;
+          margin: 0;
+        }
+
+        .lesson-lang {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.5);
+        }
+      }
+
+      .upload-btn {
+        background: rgba(37, 99, 235, 0.15);
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        color: #60A5FA;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: var(--radius-full, 9999px);
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #2563EB;
+          color: #FFFFFF;
+        }
+      }
+    }
+  }
+}

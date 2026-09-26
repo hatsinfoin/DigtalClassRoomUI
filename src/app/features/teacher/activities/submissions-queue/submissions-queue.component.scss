@@ -1,0 +1,265 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.submissions-container {
+  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .submissions-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: #60A5FA;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 0;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .page-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0;
+    }
+  }
+
+  .summary-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+
+    @media (min-width: 600px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .stat-card {
+      padding: 16px;
+      border-radius: var(--radius-xl, 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .stat-lbl {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      .stat-num {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        color: #FFFFFF;
+
+        &.pass {
+          color: #00D9A3;
+        }
+      }
+    }
+  }
+
+  .table-card {
+    padding: 20px;
+    border-radius: var(--radius-2xl, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .table-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+
+      .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+
+        th {
+          padding: 10px 14px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.5);
+          text-transform: uppercase;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        td {
+          padding: 12px 14px;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.85);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+          &.font-bold {
+            font-weight: 600;
+            color: #FFFFFF;
+          }
+        }
+
+        .pct-pill {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          color: #00D9A3;
+          background: rgba(0, 217, 163, 0.15);
+          padding: 2px 8px;
+          border-radius: var(--radius-full, 9999px);
+        }
+
+        .status-badge {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: var(--radius-md, 12px);
+
+          &.submitted {
+            background: rgba(37, 99, 235, 0.15);
+            color: #60A5FA;
+          }
+        }
+
+        .override-btn {
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #FFFFFF;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 4px 10px;
+          border-radius: var(--radius-md, 12px);
+          cursor: pointer;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+          }
+        }
+      }
+    }
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 16px;
+
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      border-radius: var(--radius-2xl, 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+
+      .modal-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .modal-sub {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .form-label {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input {
+          background: rgba(28, 33, 40, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: var(--radius-md, 12px);
+          padding: 10px 14px;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          color: #FFFFFF;
+
+          &:focus {
+            outline: none;
+            border-color: #2563EB;
+          }
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+
+        .cancel-btn {
+          flex: 1;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #FFFFFF;
+          padding: 10px;
+          border-radius: var(--radius-md, 12px);
+          font-family: 'Outfit', sans-serif;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .save-btn {
+          flex: 1;
+          background: #2563EB;
+          border: none;
+          color: #FFFFFF;
+          padding: 10px;
+          border-radius: var(--radius-md, 12px);
+          font-family: 'Outfit', sans-serif;
+          font-weight: 700;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

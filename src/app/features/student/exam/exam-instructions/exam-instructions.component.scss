@@ -1,0 +1,191 @@
+.instructions-container {
+  min-height: 100vh;
+  background: var(--bg-app, #0D1117);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+
+  .instructions-header {
+    .back-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      &:hover {
+        color: #FFFFFF;
+      }
+    }
+  }
+
+  .instructions-card {
+    padding: 28px 24px;
+    border-radius: var(--radius-2xl, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+
+      .exam-type-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #8B85FF;
+        background: rgba(108, 99, 255, 0.15);
+        padding: 3px 10px;
+        border-radius: var(--radius-full, 9999px);
+        text-transform: uppercase;
+      }
+
+      .exam-cat-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #FBBF24;
+        background: rgba(245, 158, 11, 0.15);
+        padding: 3px 10px;
+        border-radius: var(--radius-full, 9999px);
+        text-transform: uppercase;
+      }
+    }
+
+    .exam-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .exam-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+
+      @media (min-width: 500px) {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .metric-box {
+        background: rgba(28, 33, 40, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: var(--radius-xl, 20px);
+        padding: 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .metric-icon {
+          font-size: 22px;
+        }
+
+        .metric-info {
+          display: flex;
+          flex-direction: column;
+
+          .metric-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFFFFF;
+          }
+
+          .metric-lbl {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+    }
+
+    .rules-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .rules-heading {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .rules-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        li {
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.8);
+          line-height: 1.5;
+
+          &.alert-rule {
+            color: #FCD34D;
+            background: rgba(245, 158, 11, 0.12);
+            padding: 8px 12px;
+            border-radius: var(--radius-md, 12px);
+            border-left: 3px solid #F59E0B;
+          }
+
+          &.info-rule {
+            color: #93C5FD;
+            background: rgba(59, 130, 246, 0.12);
+            padding: 8px 12px;
+            border-radius: var(--radius-md, 12px);
+            border-left: 3px solid #3B82F6;
+          }
+        }
+      }
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #6C63FF, #8B85FF);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-xl, 20px);
+      padding: 16px 24px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 24px rgba(108, 99, 255, 0.4);
+      transition: all 0.2s ease;
+      margin-top: 8px;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(108, 99, 255, 0.6);
+      }
+    }
+  }
+}

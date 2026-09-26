@@ -1,0 +1,191 @@
+.admin-page-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+
+    .title-group {
+      h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 6px 0;
+      }
+      p {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+      }
+    }
+
+    .auto-refresh-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+
+      label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+      }
+
+      input[type="checkbox"] {
+        accent-color: #6366f1;
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .filters-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      select {
+        background: #161b22;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #fff;
+        padding: 8px 14px;
+        font-size: 13px;
+        outline: none;
+
+        &:focus {
+          border-color: #6366f1;
+        }
+      }
+    }
+  }
+
+  .glass-card {
+    background: rgba(22, 27, 34, 0.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    text-align: left;
+
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    td {
+      padding: 16px 20px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+
+      &.file-cell {
+        font-family: 'Outfit', monospace;
+        color: #818cf8;
+        font-weight: 600;
+      }
+    }
+
+    tr:hover td {
+      background: rgba(99, 102, 241, 0.03);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+
+      &.status-completed {
+        background: rgba(0, 217, 163, 0.15);
+        color: #00d9a3;
+        border: 1px solid rgba(0, 217, 163, 0.3);
+      }
+
+      &.status-processing {
+        background: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+      }
+
+      &.status-failed {
+        background: rgba(255, 107, 107, 0.15);
+        color: #ff6b6b;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+      }
+    }
+
+    .pipeline-step {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-mini-bar {
+      width: 100px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+
+      .fill {
+        height: 100%;
+        background: #6366f1;
+        border-radius: 3px;
+      }
+    }
+
+    .btn-retry {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #ff6b6b;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        background: rgba(255, 107, 107, 0.2);
+      }
+    }
+  }
+}
