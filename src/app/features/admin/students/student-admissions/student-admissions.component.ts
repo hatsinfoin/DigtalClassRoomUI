@@ -1,246 +1,47 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AdminService } from '../../../../core/services/admin.service';
 import { AcademicService } from '../../../../core/services/academic.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
   StudentEnrollmentRequest,
+  StudentEnrollmentResponse,
+  StudentUpdateRequest,
   BulkEnrollmentResult,
   StandardResponse,
-  SchoolResponse
+  SchoolResponse,
+  ParentProfileResponse,
+  ParentUpdateRequest,
+  LinkedSiblingSummary
 } from '../../../../core/models/models';
-import { UxStateContainerComponent, PageState } from '../../../../shared/components/ux-state-container/ux-state-container.component';
+import { UxStateContainerComponent, UxStateType } from '../../../../shared/components/ux-state-container/ux-state-container.component';
 import { TeluguNfcPipe } from '../../../../shared/pipes/telugu-nfc.pipe';
 
 interface StudentRosterItem {
-  id: string;
+  id: string | number;
   name: string;
   rollNumber: string;
   standardNumber: number;
+  standardId?: string | number;
   section: string;
   parentPhone: string;
+  parentName?: string;
+  parentRelation?: string;
   gender: string;
+  dob?: string;
+  email?: string;
   status: string;
+  siblingCount?: number;
 }
 
 @Component({
   selector: 'app-student-admissions',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, UxStateContainerComponent, TeluguNfcPipe],
-  template: `
-    <div class="admin-page-container">
-      <div class="page-header">
-        <div class="title-group">
-          <h1>Student Admissions & Roster</h1>
-          <p>Register new student enrollments, manage class rosters, and bulk ingest pupil directories</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn-secondary" (click)="openBulkModal()">
-            <span>📥 Bulk CSV Intake</span>
-          </button>
-          <button class="btn-primary" (click)="openEnrollModal()">
-            <span>➕ Individual Admission</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Bulk Result Banner if completed -->
-      @if (bulkResult) {
-        <div class="bulk-result-card">
-          <div class="result-header">
-            <h3>✅ Bulk Ingestion Completed</h3>
-            <button style="background:none; border:none; color:#fff; cursor:pointer;" (click)="bulkResult = null">✕</button>
-          </div>
-          <div class="result-stats">
-            <div class="stat-item">
-              <span>Total Processed</span>
-              <strong>{{ bulkResult.totalProcessed }}</strong>
-            </div>
-            <div class="stat-item">
-              <span>Successfully Enrolled</span>
-              <strong style="color: #00D9A3;">{{ bulkResult.successCount }}</strong>
-            </div>
-            <div class="stat-item">
-              <span>Failed / Skipped</span>
-              <strong style="color: #FF6B6B;">{{ bulkResult.failureCount }}</strong>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Filter bar -->
-      <div class="filters-bar">
-        <div class="filter-group">
-          <label>Standard / Class:</label>
-          <select [(ngModel)]="selectedStandardId" (change)="filterRoster()">
-            <option value="">All Classes</option>
-            @for (std of standards; track std.id) {
-              <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label>Section:</label>
-          <select [(ngModel)]="selectedSection" (change)="filterRoster()">
-            <option value="">All Sections</option>
-            <option value="A">Section A</option>
-            <option value="B">Section B</option>
-            <option value="C">Section C</option>
-          </select>
-        </div>
-      </div>
-
-      <app-ux-state
-        [state]="pageState"
-        emptyMessage="No students found matching selected filters."
-        (retry)="loadStudents()"
-      >
-        <div class="glass-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Roll No</th>
-                <th>Student Name</th>
-                <th>Standard & Sec</th>
-                <th>Parent Contact (IDOR Key)</th>
-                <th>Gender</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (stu of filteredRoster; track stu.id) {
-                <tr>
-                  <td class="roll-cell">{{ stu.rollNumber }}</td>
-                  <td class="name-cell">{{ stu.name | teluguNfc }}</td>
-                  <td>Class {{ stu.standardNumber }}-{{ stu.section }}</td>
-                  <td>{{ stu.parentPhone }}</td>
-                  <td>{{ stu.gender }}</td>
-                  <td>
-                    <span style="color: #00D9A3; font-size: 13px;">● Active</span>
-                  </td>
-                  <td>
-                    <button class="btn-reset" (click)="resetPassword(stu)">
-                      🔑 Reset Password
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </app-ux-state>
-
-      <!-- Individual Admission Modal -->
-      @if (showEnrollModal) {
-        <div class="modal-overlay" (click)="closeEnrollModal()">
-          <div class="modal-dialog" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-              <h2>New Student Admission</h2>
-              <button class="close-btn" (click)="closeEnrollModal()">✕</button>
-            </div>
-
-            <form [formGroup]="enrollForm" (ngSubmit)="saveEnrollment()">
-              <div class="form-grid">
-                <div class="form-group full-width">
-                  <label>Student Full Name (Bilingual / Telugu NFC)</label>
-                  <input formControlName="name" placeholder="e.g. Rahul Sharma / రాహుల్" />
-                </div>
-
-                <div class="form-group">
-                  <label>Standard / Class</label>
-                  <select formControlName="standardId">
-                    <option value="">-- Choose Class --</option>
-                    @for (std of standards; track std.id) {
-                      <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Section</label>
-                  <select formControlName="section">
-                    <option value="A">Section A</option>
-                    <option value="B">Section B</option>
-                    <option value="C">Section C</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Roll Number</label>
-                  <input formControlName="rollNumber" placeholder="e.g. 10-A-01" />
-                </div>
-
-                <div class="form-group">
-                  <label>Gender</label>
-                  <select formControlName="gender">
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="OTHER">Other</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label>Date of Birth</label>
-                  <input formControlName="dob" type="date" />
-                </div>
-
-                <div class="form-group">
-                  <label>Parent Phone (MANDATORY — IDOR Key)</label>
-                  <input formControlName="parentPhone" placeholder="+91 9876543210" />
-                </div>
-
-                <div class="form-group full-width">
-                  <label>Student / Parent Email (Optional)</label>
-                  <input formControlName="email" type="email" placeholder="student@school.org" />
-                </div>
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeEnrollModal()">Cancel</button>
-                <button type="submit" class="btn-primary" [disabled]="enrollForm.invalid || isSubmitting">
-                  {{ isSubmitting ? 'Enrolling...' : 'Confirm Admission' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      }
-
-      <!-- Bulk CSV Upload Modal -->
-      @if (showBulkModal) {
-        <div class="modal-overlay" (click)="closeBulkModal()">
-          <div class="modal-dialog" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-              <h2>Bulk CSV Intake</h2>
-              <button class="close-btn" (click)="closeBulkModal()">✕</button>
-            </div>
-
-            <div class="upload-dropzone" (click)="fileInput.click()">
-              <input #fileInput type="file" accept=".csv" style="display:none;" (change)="onFileSelected($event)" />
-              <div class="dropzone-icon">📁</div>
-              <p>{{ selectedFile ? selectedFile.name : 'Click to select CSV file for batch enrollment' }}</p>
-              <span>Required columns: name, rollNumber, standardNumber, section, parentPhone, gender, dob</span>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn-secondary" (click)="closeBulkModal()">Cancel</button>
-              <button
-                type="button"
-                class="btn-primary"
-                [disabled]="!selectedFile || isSubmitting"
-                (click)="uploadBulkCsv()"
-              >
-                {{ isSubmitting ? 'Processing CSV...' : 'Start Ingestion' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './student-admissions.component.html',
   styleUrls: ['./student-admissions.component.scss']
 })
 export class StudentAdmissionsComponent implements OnInit {
@@ -249,187 +50,623 @@ export class StudentAdmissionsComponent implements OnInit {
   private auth = inject(AuthService);
   private fb = inject(FormBuilder);
 
-  pageState: PageState = 'loading';
-  standards: StandardResponse[] = [];
-  schools: SchoolResponse[] = [];
+  // Role Signals
+  isPlatformAdmin = computed(() => this.auth.isPlatformAdmin());
+  isAdmin = computed(() => this.auth.isPlatformAdmin() || this.auth.isSchoolAdmin());
 
-  roster: StudentRosterItem[] = [];
-  filteredRoster: StudentRosterItem[] = [];
+  // Page State
+  pageState = signal<UxStateType>('normal');
+  pageErrorTitle = signal<string>('Failed to load student directory');
+  pageErrorMessage = signal<string>('');
+  hasSearched = signal<boolean>(false);
+  isSearching = signal<boolean>(false);
+  isSubmitting = signal<boolean>(false);
 
-  selectedStandardId = '';
-  selectedSection = '';
+  // Toast Notifications & Modal Error Banners
+  toast = signal<{ type: 'error' | 'success'; text: string } | null>(null);
+  private toastTimeout: any = null;
+  modalErrorMessage = signal<string | null>(null);
 
-  showEnrollModal = false;
-  showBulkModal = false;
-  selectedFile: File | null = null;
-  bulkResult: BulkEnrollmentResult | null = null;
-  isSubmitting = false;
+  // Data Signals
+  schools = signal<SchoolResponse[]>([]);
+  standards = signal<StandardResponse[]>([]);
+  roster = signal<StudentRosterItem[]>([]);
+  bulkResult = signal<BulkEnrollmentResult | null>(null);
 
+  // Filter Selection Signals
+  selectedSchoolId = signal<string>('');
+  selectedStandardId = signal<string>('');
+  selectedSection = signal<string>('');
+  availableSections = signal<string[]>(['A', 'B', 'C']);
+
+  // Modal Control Signals
+  showEnrollModal = signal<boolean>(false);
+  showEditStudentModal = signal<boolean>(false);
+  showBulkModal = signal<boolean>(false);
+  showParentModal = signal<boolean>(false);
+  isEditingParent = signal<boolean>(false);
+  showLinkSiblingForm = signal<boolean>(false);
+
+  // Active Parent Context for Modal
+  activeParent = signal<ParentProfileResponse | null>(null);
+  siblingSearchPhone = signal<string>('');
+  availableStudentsToLink = signal<StudentRosterItem[]>([]);
+  selectedStudentToLink = signal<string>('');
+
+  // Sibling Auto-Detection Hint
+  detectedExistingParent = signal<{ name: string; relation: string; childrenCount: number } | null>(null);
+
+  // Forms
   enrollForm: FormGroup = this.fb.group({
     schoolId: ['', Validators.required],
     standardId: ['', Validators.required],
     section: ['A', Validators.required],
     name: ['', Validators.required],
     rollNumber: ['', Validators.required],
-    parentPhone: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s]{10,15}$/)]],
     gender: ['MALE', Validators.required],
     dob: ['2012-05-15', Validators.required],
+    parentPhone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    parentName: [''],
+    parentRelation: ['FATHER'],
     email: ['']
   });
 
+  editStudentForm: FormGroup = this.fb.group({
+    id: [''],
+    schoolId: ['', Validators.required],
+    standardId: ['', Validators.required],
+    section: ['A', Validators.required],
+    name: ['', Validators.required],
+    rollNumber: ['', Validators.required],
+    gender: ['MALE', Validators.required],
+    dob: ['2012-05-15', Validators.required],
+    parentPhone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    email: ['']
+  });
+
+  parentEditForm: FormGroup = this.fb.group({
+    schoolId: ['', Validators.required],
+    name: ['', Validators.required],
+    relation: ['FATHER', Validators.required],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    alternatePhone: [''],
+    email: [''],
+    occupation: [''],
+    address: [''],
+    preferredLanguage: ['TELUGU']
+  });
+
+  bulkStandardId = '';
+  selectedFile: File | null = null;
+
   ngOnInit(): void {
-    this.loadMeta();
-    this.loadStudents();
+    this.initializeSchoolScope();
   }
 
-  loadMeta(): void {
-    this.adminService.getSchools().subscribe(s => {
-      this.schools = s || [];
-      const sid = this.auth.currentUser()?.schoolId || this.schools[0]?.id;
-      if (sid) {
-        this.enrollForm.patchValue({ schoolId: sid });
-        this.academicService.getStandards(sid).subscribe(stds => {
-          this.standards = stds || [];
-          if (this.standards.length > 0) {
-            this.enrollForm.patchValue({ standardId: this.standards[0].id });
-          }
+  // Toast Helper
+  showToast(type: 'error' | 'success', text: string): void {
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toast.set({ type, text });
+    this.toastTimeout = setTimeout(() => {
+      this.toast.set(null);
+    }, 5000);
+  }
+
+  dismissToast(): void {
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toast.set(null);
+  }
+
+  private extractErrorMessage(err: any, defaultMsg: string): string {
+    if (!err) return defaultMsg;
+    if (typeof err === 'string') return err;
+    if (err?.error?.message) return err.error.message;
+    if (err?.error?.error) return err.error.error;
+    if (err?.error?.details) return err.error.details;
+    if (err?.statusText && err?.status) return `Server error (${err.status}): ${err.statusText}`;
+    if (err?.message) return err.message;
+    return defaultMsg;
+  }
+
+  /**
+   * Initializes tenant school scoping based on Role & Auth state.
+   */
+  initializeSchoolScope(): void {
+    const isPlatform = this.auth.isPlatformAdmin();
+    const userSchoolId = this.auth.getSchoolId() || this.auth.currentUser()?.schoolId || '';
+
+    this.adminService.getSchools().subscribe({
+      next: (schoolList) => {
+        const list = schoolList && schoolList.length > 0 ? schoolList : [];
+        this.schools.set(list);
+
+        const initialSchoolId = isPlatform
+          ? (userSchoolId || list[0]?.id || '')
+          : (userSchoolId || list[0]?.id || '');
+
+        if (initialSchoolId) {
+          this.selectedSchoolId.set(String(initialSchoolId));
+          this.loadStandardsForSchool(String(initialSchoolId));
+        }
+      },
+      error: (err) => {
+        const msg = this.extractErrorMessage(err, 'Failed to fetch schools directory');
+        this.showToast('error', msg);
+      }
+    });
+  }
+
+  /**
+   * Loads standards for the active school scope.
+   */
+  loadStandardsForSchool(schoolId: string): void {
+    this.academicService.getStandards(schoolId).subscribe({
+      next: (stds) => {
+        const stdList = stds || [];
+        this.standards.set(stdList);
+        this.selectedStandardId.set('');
+        this.selectedSection.set('');
+        this.hasSearched.set(false);
+        this.roster.set([]);
+      },
+      error: (err) => {
+        const msg = this.extractErrorMessage(err, 'Failed to load standards for selected campus');
+        this.showToast('error', msg);
+      }
+    });
+  }
+
+  /**
+   * Handle School Change (Platform Admin only)
+   */
+  onSchoolChange(newSchoolId: string): void {
+    this.selectedSchoolId.set(newSchoolId);
+    this.loadStandardsForSchool(newSchoolId);
+  }
+
+  /**
+   * Handle Standard Selection (Cascades to Sections and resets search)
+   */
+  onStandardChange(stdId: string): void {
+    this.selectedStandardId.set(stdId);
+    this.selectedSection.set('');
+    this.hasSearched.set(false);
+    this.roster.set([]);
+
+    if (stdId) {
+      this.availableSections.set(['A', 'B', 'C']);
+    } else {
+      this.availableSections.set([]);
+    }
+  }
+
+  /**
+   * Handle Section Selection
+   */
+  onSectionChange(sec: string): void {
+    this.selectedSection.set(sec);
+    this.hasSearched.set(false);
+    this.roster.set([]);
+  }
+
+  /**
+   * On-Demand Search Execution (Triggered only when Admin clicks 'Search Students')
+   */
+  onSearch(): void {
+    const stdId = this.selectedStandardId();
+    if (!stdId) return;
+
+    this.isSearching.set(true);
+    this.pageState.set('loading');
+    const schoolId = this.selectedSchoolId();
+    const section = this.selectedSection();
+
+    this.adminService.getStudents(stdId, section, schoolId).subscribe({
+      next: (data) => {
+        this.isSearching.set(false);
+        this.hasSearched.set(true);
+
+        const selectedStd = this.standards().find(s => String(s.id) === String(stdId));
+        const stdNumber = selectedStd ? selectedStd.standardNumber : 10;
+
+        const mappedRoster: StudentRosterItem[] = (data || []).map(stu => {
+          const matchingPhone = (data || []).filter(s => s.parentPhone && s.parentPhone === stu.parentPhone);
+          return {
+            id: stu.id,
+            name: stu.name,
+            rollNumber: stu.rollNumber,
+            standardNumber: stdNumber,
+            standardId: stu.standardId || stdId,
+            section: stu.section,
+            parentPhone: stu.parentPhone,
+            parentName: (stu as any).parentName || '',
+            parentRelation: (stu as any).parentRelation || 'FATHER',
+            gender: String(stu.gender || 'MALE'),
+            dob: stu.dob || '2012-05-15',
+            email: stu.email || '',
+            status: 'ACTIVE',
+            siblingCount: matchingPhone.length > 0 ? matchingPhone.length : 1
+          };
         });
+
+        this.roster.set(mappedRoster);
+        if (mappedRoster.length > 0) {
+          this.pageState.set('normal');
+        } else {
+          this.pageState.set('empty');
+        }
+      },
+      error: (err) => {
+        this.isSearching.set(false);
+        const errorText = this.extractErrorMessage(err, 'Failed to fetch student directory');
+        this.pageErrorTitle.set('API Error');
+        this.pageErrorMessage.set(errorText);
+        this.pageState.set('error');
+        this.showToast('error', errorText);
       }
     });
   }
 
-  loadStudents(): void {
-    this.pageState = 'loading';
-    // Mock baseline roster data for institutional demonstration
-    setTimeout(() => {
-      this.roster = [
-        { id: 'stu-1', name: 'Aarav Sharma (ఆరవ్ శర్మ)', rollNumber: '10-A-01', standardNumber: 10, section: 'A', parentPhone: '+91 9876543210', gender: 'MALE', status: 'ACTIVE' },
-        { id: 'stu-2', name: 'Bhavya Sri (భవ్య శ్రీ)', rollNumber: '10-A-02', standardNumber: 10, section: 'A', parentPhone: '+91 9876543211', gender: 'FEMALE', status: 'ACTIVE' },
-        { id: 'stu-3', name: 'Chaitanya Varma (చైతన్య వర్మ)', rollNumber: '10-A-03', standardNumber: 10, section: 'A', parentPhone: '+91 9876543212', gender: 'MALE', status: 'ACTIVE' },
-        { id: 'stu-4', name: 'Divya Reddy (దివ్య రెడ్డి)', rollNumber: '10-B-01', standardNumber: 10, section: 'B', parentPhone: '+91 9876543213', gender: 'FEMALE', status: 'ACTIVE' },
-        { id: 'stu-5', name: 'Eshwar Rao (ఈశ్వర్ రావు)', rollNumber: '09-A-01', standardNumber: 9, section: 'A', parentPhone: '+91 9876543214', gender: 'MALE', status: 'ACTIVE' }
-      ];
-      this.filterRoster();
-      this.pageState = 'normal';
-    }, 400);
-  }
-
-  filterRoster(): void {
-    this.filteredRoster = this.roster.filter(s => {
-      let matches = true;
-      if (this.selectedStandardId) {
-        const std = this.standards.find(st => String(st.id) === String(this.selectedStandardId));
-        if (std && s.standardNumber !== std.standardNumber) matches = false;
-      }
-      if (this.selectedSection && s.section !== this.selectedSection) {
-        matches = false;
-      }
-      return matches;
-    });
-  }
-
+  // ──────────────────────────────────────────────────────────────
+  // INDIVIDUAL ADMISSION WORKFLOW (With Sibling Auto-Detection)
+  // ──────────────────────────────────────────────────────────────
   openEnrollModal(): void {
+    const schoolId = this.selectedSchoolId();
+    const stdList = this.standards();
+    this.detectedExistingParent.set(null);
+    this.modalErrorMessage.set(null);
+
     this.enrollForm.reset({
-      schoolId: this.auth.currentUser()?.schoolId || (this.schools[0]?.id || ''),
-      standardId: this.standards[0]?.id || '',
-      section: 'A',
+      schoolId: schoolId,
+      standardId: this.selectedStandardId() || stdList[0]?.id || '',
+      section: this.selectedSection() || 'A',
       name: '',
       rollNumber: '',
-      parentPhone: '',
       gender: 'MALE',
       dob: '2012-05-15',
+      parentPhone: '',
+      parentName: '',
+      parentRelation: 'FATHER',
       email: ''
     });
-    this.showEnrollModal = true;
+    this.showEnrollModal.set(true);
   }
 
   closeEnrollModal(): void {
-    this.showEnrollModal = false;
+    this.showEnrollModal.set(false);
+    this.detectedExistingParent.set(null);
+    this.modalErrorMessage.set(null);
+  }
+
+  onParentPhoneChange(phone: string): void {
+    if (!phone || phone.length < 10) {
+      this.detectedExistingParent.set(null);
+      return;
+    }
+    // Check if phone exists in active roster
+    const matching = this.roster().filter(m => m.parentPhone === phone);
+    if (matching.length > 0) {
+      const parentName = matching[0].parentName || 'Existing Parent';
+      const relation = matching[0].parentRelation || 'FATHER';
+      this.detectedExistingParent.set({
+        name: parentName,
+        relation: relation,
+        childrenCount: matching.length
+      });
+      this.enrollForm.patchValue({
+        parentName: parentName,
+        parentRelation: relation
+      });
+    } else {
+      this.detectedExistingParent.set(null);
+    }
   }
 
   saveEnrollment(): void {
     if (this.enrollForm.invalid) return;
-    this.isSubmitting = true;
-    const req = this.enrollForm.value as StudentEnrollmentRequest;
+    this.isSubmitting.set(true);
+    this.modalErrorMessage.set(null);
+    const formVal = this.enrollForm.value as StudentEnrollmentRequest;
 
-    this.adminService.enrollStudent(req).subscribe({
+    this.adminService.enrollStudent(formVal).subscribe({
       next: (res) => {
-        this.isSubmitting = false;
+        this.isSubmitting.set(false);
+        this.showToast('success', `Student ${formVal.name} enrolled successfully! (Roll: ${formVal.rollNumber})`);
         this.closeEnrollModal();
-        alert(`Student enrolled successfully!\nUsername: ${res.username}\nTemporary Password: ${res.tempPassword || 'Pass@123'}`);
-        this.loadStudents();
+        if (this.hasSearched() && String(this.selectedStandardId()) === String(formVal.standardId)) {
+          this.onSearch();
+        }
       },
-      error: () => {
-        // Fallback demo enrollment
-        this.isSubmitting = false;
-        const std = this.standards.find(s => s.id === req.standardId);
-        this.roster.unshift({
-          id: 'stu-' + Date.now(),
-          name: req.name,
-          rollNumber: req.rollNumber,
-          standardNumber: std?.standardNumber || 10,
-          section: req.section,
-          parentPhone: req.parentPhone,
-          gender: req.gender,
-          status: 'ACTIVE'
-        });
-        this.filterRoster();
-        this.closeEnrollModal();
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, 'Failed to enroll student. Please check inputs and try again.');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
       }
     });
   }
 
+  // ──────────────────────────────────────────────────────────────
+  // EDIT STUDENT MODAL WORKFLOW
+  // ──────────────────────────────────────────────────────────────
+  openEditStudentModal(student: StudentRosterItem): void {
+    this.modalErrorMessage.set(null);
+    this.editStudentForm.reset({
+      id: student.id,
+      schoolId: this.selectedSchoolId(),
+      standardId: student.standardId || this.selectedStandardId(),
+      section: student.section,
+      name: student.name,
+      rollNumber: student.rollNumber,
+      gender: student.gender,
+      dob: student.dob || '2012-05-15',
+      parentPhone: student.parentPhone,
+      email: student.email || ''
+    });
+    this.showEditStudentModal.set(true);
+  }
+
+  closeEditStudentModal(): void {
+    this.showEditStudentModal.set(false);
+    this.modalErrorMessage.set(null);
+  }
+
+  saveStudentEdit(): void {
+    if (this.editStudentForm.invalid) return;
+    this.isSubmitting.set(true);
+    this.modalErrorMessage.set(null);
+    const formVal = this.editStudentForm.value;
+
+    const updatePayload: StudentUpdateRequest = {
+      name: formVal.name,
+      rollNumber: formVal.rollNumber,
+      standardId: formVal.standardId,
+      section: formVal.section,
+      gender: formVal.gender,
+      dob: formVal.dob,
+      parentPhone: formVal.parentPhone,
+      email: formVal.email
+    };
+
+    this.adminService.updateStudent(formVal.id, updatePayload, this.selectedSchoolId()).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        this.showToast('success', `Student details updated successfully!`);
+        this.closeEditStudentModal();
+        // Update local roster
+        const list = this.roster().map(s => {
+          if (String(s.id) === String(formVal.id)) {
+            return {
+              ...s,
+              name: formVal.name,
+              rollNumber: formVal.rollNumber,
+              standardId: formVal.standardId,
+              section: formVal.section,
+              gender: formVal.gender,
+              dob: formVal.dob,
+              parentPhone: formVal.parentPhone,
+              email: formVal.email
+            };
+          }
+          return s;
+        });
+        this.roster.set(list);
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, 'Failed to update student details');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // PARENT PROFILE & SIBLINGS MANAGEMENT WORKFLOW
+  // ──────────────────────────────────────────────────────────────
+  openParentModal(student: StudentRosterItem): void {
+    this.isEditingParent.set(false);
+    this.showLinkSiblingForm.set(false);
+    this.modalErrorMessage.set(null);
+
+    // Fetch Parent Profile & Siblings by Parent Phone
+    this.adminService.getParentProfile(student.parentPhone, this.selectedSchoolId()).subscribe({
+      next: (profile) => {
+        this.activeParent.set(profile);
+        this.parentEditForm.reset({
+          schoolId: this.selectedSchoolId(),
+          name: profile.name,
+          relation: profile.relation || 'FATHER',
+          phone: profile.phone,
+          alternatePhone: profile.alternatePhone || '',
+          email: profile.email || '',
+          occupation: profile.occupation || '',
+          address: profile.address || '',
+          preferredLanguage: profile.preferredLanguage || 'TELUGU'
+        });
+        this.showParentModal.set(true);
+      },
+      error: (err) => {
+        const errMsg = this.extractErrorMessage(err, `Failed to load parent profile for phone ${student.parentPhone}`);
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  closeParentModal(): void {
+    this.showParentModal.set(false);
+    this.activeParent.set(null);
+    this.isEditingParent.set(false);
+    this.showLinkSiblingForm.set(false);
+    this.modalErrorMessage.set(null);
+  }
+
+  toggleEditParent(): void {
+    this.modalErrorMessage.set(null);
+    this.isEditingParent.set(!this.isEditingParent());
+  }
+
+  saveParentDetails(): void {
+    if (this.parentEditForm.invalid) return;
+    this.isSubmitting.set(true);
+    this.modalErrorMessage.set(null);
+    const formVal = this.parentEditForm.value as ParentUpdateRequest;
+    const currentPhone = this.activeParent()?.phone || formVal.phone;
+
+    this.adminService.updateParentProfile(currentPhone, formVal).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        this.activeParent.set(res);
+        this.isEditingParent.set(false);
+        this.showToast('success', 'Parent profile updated successfully!');
+
+        // Update active roster parent info if phone or name changed
+        const updated = this.roster().map(s => {
+          if (s.parentPhone === currentPhone) {
+            return {
+              ...s,
+              parentPhone: formVal.phone,
+              parentName: formVal.name,
+              parentRelation: formVal.relation
+            };
+          }
+          return s;
+        });
+        this.roster.set(updated);
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, 'Failed to save parent details');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  openLinkSiblingSection(): void {
+    this.modalErrorMessage.set(null);
+    const currentLinkedIds = (this.activeParent()?.linkedStudents || []).map(s => String(s.id));
+    const available = this.roster().filter(m => !currentLinkedIds.includes(String(m.id)));
+    this.availableStudentsToLink.set(available);
+    this.selectedStudentToLink.set(available[0]?.id ? String(available[0].id) : '');
+    this.showLinkSiblingForm.set(true);
+  }
+
+  confirmLinkSibling(): void {
+    const studentId = this.selectedStudentToLink();
+    const parentPhone = this.activeParent()?.phone;
+    if (!studentId || !parentPhone) return;
+
+    this.isSubmitting.set(true);
+    this.modalErrorMessage.set(null);
+
+    this.adminService.linkSiblingToParent(parentPhone, studentId, this.selectedSchoolId()).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        this.activeParent.set(res);
+        this.showLinkSiblingForm.set(false);
+        this.showToast('success', 'Sibling linked to parent profile successfully!');
+        if (this.hasSearched()) {
+          this.onSearch();
+        }
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, 'Failed to link sibling');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  unlinkSibling(sibling: LinkedSiblingSummary): void {
+    if (!confirm(`Unlink ${sibling.name} from parent ${this.activeParent()?.name}?`)) return;
+    const parentPhone = this.activeParent()?.phone;
+    if (!parentPhone) return;
+
+    this.modalErrorMessage.set(null);
+    this.adminService.unlinkSiblingFromParent(parentPhone, sibling.id, this.selectedSchoolId()).subscribe({
+      next: (res) => {
+        this.activeParent.set(res);
+        this.showToast('success', `Unlinked ${sibling.name} successfully!`);
+        if (this.hasSearched()) {
+          this.onSearch();
+        }
+      },
+      error: (err) => {
+        const errMsg = this.extractErrorMessage(err, 'Failed to unlink sibling');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  // BULK CSV INTAKE
+  // ──────────────────────────────────────────────────────────────
   openBulkModal(): void {
+    this.bulkStandardId = this.standards()[0]?.id ? String(this.standards()[0].id) : '';
     this.selectedFile = null;
-    this.showBulkModal = true;
+    this.modalErrorMessage.set(null);
+    this.showBulkModal.set(true);
   }
 
   closeBulkModal(): void {
-    this.showBulkModal = false;
+    this.showBulkModal.set(false);
+    this.modalErrorMessage.set(null);
   }
 
   onFileSelected(event: any): void {
-    const file = event.target.files?.[0];
-    if (file) {
-      this.selectedFile = file;
-    }
+    this.selectedFile = event.target?.files?.[0] || null;
   }
 
-  uploadBulkCsv(): void {
+  submitBulkUpload(): void {
     if (!this.selectedFile) return;
-    this.isSubmitting = true;
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    this.isSubmitting.set(true);
+    this.modalErrorMessage.set(null);
 
-    this.adminService.bulkEnrollStudents(formData).subscribe({
-      next: (result) => {
-        this.isSubmitting = false;
-        this.bulkResult = result;
+    const fd = new FormData();
+    fd.append('file', this.selectedFile);
+    if (this.bulkStandardId) fd.append('standardId', this.bulkStandardId);
+    if (this.selectedSchoolId()) fd.append('schoolId', this.selectedSchoolId());
+
+    this.adminService.bulkEnrollStudents(fd).subscribe({
+      next: (res) => {
+        this.isSubmitting.set(false);
+        this.bulkResult.set(res);
         this.closeBulkModal();
-        this.loadStudents();
+        this.showToast('success', `Bulk upload completed: ${res.successCount} enrolled, ${res.failureCount} failed.`);
+        if (this.hasSearched()) {
+          this.onSearch();
+        }
       },
-      error: () => {
-        this.isSubmitting = false;
-        this.bulkResult = {
-          totalProcessed: 45,
-          successCount: 44,
-          failureCount: 1,
-          errors: ['Row 12: Duplicate roll number 10-A-12']
-        };
-        this.closeBulkModal();
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, 'Failed to process bulk CSV upload');
+        this.modalErrorMessage.set(errMsg);
+        this.showToast('error', errMsg);
       }
     });
   }
 
+  // ──────────────────────────────────────────────────────────────
+  // PASSWORD RESET
+  // ──────────────────────────────────────────────────────────────
   resetPassword(student: StudentRosterItem): void {
-    if (!confirm(`Reset credentials for ${student.name}?`)) return;
+    if (!confirm(`Reset credentials for ${student.name}? A temporary password will be assigned.`)) return;
     this.adminService.resetStudentPassword(student.id).subscribe({
       next: (res) => {
-        alert(`Password reset successfully!\nTemporary Password: ${res.tempPassword || 'Welcome@123'}`);
+        this.showToast('success', res?.message || 'Password reset successfully!');
       },
-      error: () => {
-        alert(`Password reset for ${student.name}.\nTemporary Password: Reset@${student.rollNumber}`);
+      error: (err) => {
+        const errMsg = this.extractErrorMessage(err, 'Failed to reset student password');
+        this.showToast('error', errMsg);
       }
     });
+  }
+
+  getSchoolName(schoolId: string): string {
+    const s = this.schools().find(sc => String(sc.id) === String(schoolId));
+    return s ? `${s.name} (${s.city})` : 'Digital Public School';
   }
 }

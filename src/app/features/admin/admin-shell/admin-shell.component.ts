@@ -79,5 +79,6 @@ export class AdminShellComponent {
 
   logout(): void {
     this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -8,7 +8,7 @@ import { provideRouter, withPreloading, PreloadAllModules, RouteReuseStrategy } 
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideIonicAngular, IonicRouteStrategy } from '@ionic/angular';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { timeout, catchError } from 'rxjs/operators';
 
 import { routes } from './app.routes';
 import { AuthService } from './core/services/auth.service';
@@ -19,7 +19,13 @@ import { offlineInterceptor } from './core/interceptors/offline.interceptor';
 function initializeApp(auth: AuthService) {
   return () => {
     if (auth.isAuthenticated()) {
-      return auth.fetchProfile().pipe(catchError(() => of(null)));
+      return auth.fetchProfile().pipe(
+        timeout(2000),
+        catchError((err) => {
+          console.warn('[AppInitializer] Profile fetch skipped or timed out:', err);
+          return of(null);
+        })
+      );
     }
     return of(null);
   };

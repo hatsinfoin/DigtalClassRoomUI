@@ -1,62 +1,111 @@
-.error-state-card {
-  margin: var(--space-4, 16px);
-  padding: var(--space-8, 32px) var(--space-4, 16px);
+.user-friendly-error-card {
+  margin: 24px auto;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-radius: var(--radius-2xl, 24px);
-  border: 1px solid rgba(255, 107, 107, 0.25);
+  max-width: 540px;
+  width: 100%;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 
-  .error-icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: var(--radius-full, 9999px);
-    background: rgba(255, 107, 107, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-danger, #FF6B6B);
-    margin-bottom: var(--space-4, 16px);
+  .error-illustration-wrapper {
+    margin-bottom: 20px;
 
-    .error-svg {
-      width: 32px;
-      height: 32px;
+    .cloud-glow-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(13, 17, 23, 0) 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 0 16px rgba(99, 102, 241, 0.3));
+
+      .cloud-svg {
+        width: 64px;
+        height: 64px;
+      }
     }
   }
 
-  .error-title {
+  .friendly-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 700;
-    color: #FFFFFF;
-    margin: 0 0 8px 0;
+    color: #ffffff;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
   }
 
-  .error-message {
+  .telugu-subtitle {
+    font-family: 'Noto Sans Telugu', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #f7971e;
+    margin-bottom: 14px;
+  }
+
+  .friendly-message {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.65);
-    max-width: 320px;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 440px;
     line-height: 1.5;
-    margin: 0 0 var(--space-6, 24px) 0;
+    margin: 0 0 20px 0;
   }
 
-  .error-retry-btn {
+  .helpful-tips-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 12px 18px;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+
+    .tip-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.65);
+
+      .tip-dot {
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  .primary-retry-btn {
     font-family: 'Outfit', sans-serif;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 107, 107, 0.15);
-    border: 1px solid rgba(255, 107, 107, 0.4);
-    color: #FF8E8E;
-    border-radius: var(--radius-full, 9999px);
-    padding: 10px 24px;
-    font-size: 14px;
-    font-weight: 600;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
     transition: all 0.2s ease;
+    width: 100%;
+    max-width: 440px;
 
     .retry-icon {
       width: 18px;
@@ -64,8 +113,55 @@
     }
 
     &:hover {
-      background: rgba(255, 107, 107, 0.25);
-      color: #FFFFFF;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.55);
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+    }
+  }
+
+  .technical-details-toggle {
+    margin-top: 18px;
+    width: 100%;
+    max-width: 440px;
+
+    .btn-tech-toggle {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.45);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      .chevron-icon {
+        font-size: 10px;
+      }
+    }
+
+    .tech-details-box {
+      margin-top: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: left;
+      overflow-x: auto;
+
+      code {
+        font-family: 'Outfit', monospace;
+        font-size: 12px;
+        color: #ff8e8e;
+        line-height: 1.4;
+        word-break: break-all;
+      }
     }
   }
 }
+

@@ -1,0 +1,620 @@
+<div class="admin-page-container">
+  <!-- Global Floating Toast Notification -->
+  @if (toast()) {
+    <div class="toast-notification" [class.error]="toast()?.type === 'error'" [class.success]="toast()?.type === 'success'">
+      <span class="toast-icon">{{ toast()?.type === 'error' ? '⚠️' : '✅' }}</span>
+      <span class="toast-text">{{ toast()?.text }}</span>
+      <button class="toast-close" (click)="dismissToast()">✕</button>
+    </div>
+  }
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="title-group">
+      <h1>Student Admissions & Roster</h1>
+      <p>Register student enrollments, manage multi-child parent links, and explore class directories</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="openBulkModal()">
+        <span>📥 Bulk CSV Intake</span>
+      </button>
+      <button class="btn-primary" (click)="openEnrollModal()">
+        <span>➕ Individual Admission</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bulk Ingestion Completion Banner -->
+  @if (bulkResult()) {
+    <div class="bulk-result-card">
+      <div class="result-header">
+        <h3>✅ Bulk Ingestion Completed</h3>
+        <button class="close-banner-btn" (click)="bulkResult.set(null)">✕</button>
+      </div>
+      <div class="result-stats">
+        <div class="stat-item">
+          <span>Total Processed</span>
+          <strong>{{ bulkResult()?.totalProcessed }}</strong>
+        </div>
+        <div class="stat-item">
+          <span>Successfully Enrolled</span>
+          <strong style="color: #00D9A3;">{{ bulkResult()?.successCount }}</strong>
+        </div>
+        <div class="stat-item">
+          <span>Failed / Skipped</span>
+          <strong style="color: #FF6B6B;">{{ bulkResult()?.failureCount }}</strong>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Filter & Search Toolbar (School-Scoped vs Platform Admin) -->
+  <div class="filters-bar glass-panel">
+    <!-- School Context (Dropdown for Platform Admin, Locked Badge for School Admin) -->
+    @if (isPlatformAdmin()) {
+      <div class="filter-group">
+        <label>Campus / School:</label>
+        <select [ngModel]="selectedSchoolId()" (ngModelChange)="onSchoolChange($event)">
+          @for (sch of schools(); track sch.id) {
+            <option [value]="sch.id">{{ sch.name }} ({{ sch.city }})</option>
+          }
+        </select>
+      </div>
+    } @else {
+      <div class="school-locked-badge">
+        <span class="icon">🏫</span>
+        <div class="badge-text">
+          <small>Campus</small>
+          <strong>{{ getSchoolName(selectedSchoolId()) }}</strong>
+        </div>
+      </div>
+    }
+
+    <!-- Standard / Class Dropdown -->
+    <div class="filter-group">
+      <label>Standard / Class *</label>
+      <select [ngModel]="selectedStandardId()" (ngModelChange)="onStandardChange($event)">
+        <option value="">-- Select Standard / Class --</option>
+        @for (std of standards(); track std.id) {
+          <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Section Dropdown (Cascading) -->
+    <div class="filter-group">
+      <label>Section</label>
+      <select
+        [ngModel]="selectedSection()"
+        (ngModelChange)="onSectionChange($event)"
+        [disabled]="!selectedStandardId()"
+      >
+        <option value="">All Sections</option>
+        @for (sec of availableSections(); track sec) {
+          <option [value]="sec">Section {{ sec }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Dedicated Search Action Button -->
+    <div class="search-action-group">
+      <button
+        class="btn-search"
+        [disabled]="!selectedStandardId() || isSearching()"
+        (click)="onSearch()"
+      >
+        <span>{{ isSearching() ? '⏳ Searching...' : '🔍 Search Students' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Initial State Prompt before searching -->
+  @if (!hasSearched()) {
+    <div class="initial-prompt-card glass-card">
+      <div class="prompt-icon">👥</div>
+      <h2>Select Class & Search</h2>
+      <p>To avoid loading heavy datasets, select a <strong>Standard / Class</strong> and click <strong>Search Students</strong> to load the student directory.</p>
+    </div>
+  } @else {
+    <!-- Search Results View with UX State Container -->
+    <app-ux-state
+      [state]="pageState()"
+      [errorTitle]="pageErrorTitle()"
+      [errorMessage]="pageErrorMessage()"
+      emptyMessage="No students found matching the selected class and section."
+      (onRetry)="onSearch()"
+    >
+      <div class="glass-card table-wrapper">
+        <div class="table-header-info">
+          <span>Found <strong>{{ roster().length }}</strong> students enrolled</span>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Student Name</th>
+              <th>Class & Sec</th>
+              <th>Parent Details (IDOR Key)</th>
+              <th>Gender</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (stu of roster(); track stu.id) {
+              <tr>
+                <td class="roll-cell">{{ stu.rollNumber }}</td>
+                <td class="name-cell">
+                  <div class="student-name-group">
+                    <span class="primary-name">{{ stu.name | teluguNfc }}</span>
+                    @if (stu.email) {
+                      <small class="student-email">{{ stu.email }}</small>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="class-pill">Std {{ stu.standardNumber }}-{{ stu.section }}</span>
+                </td>
+                <td>
+                  <div class="parent-cell-info">
+                    <div class="parent-meta">
+                      <strong>{{ stu.parentName || 'Parent / Guardian' }}</strong>
+                      <span class="phone-tag">{{ stu.parentPhone }}</span>
+                    </div>
+                    @if ((stu.siblingCount || 1) > 1) {
+                      <span class="sibling-badge" title="Multiple siblings enrolled in this school">
+                        👨‍👩‍👧 {{ stu.siblingCount }} Siblings
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>{{ stu.gender }}</td>
+                <td>
+                  <span class="status-badge active">● Active</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button class="btn-action btn-edit" title="Edit Student Details" (click)="openEditStudentModal(stu)">
+                      ✏️ Edit
+                    </button>
+                    <button class="btn-action btn-parent" title="View & Edit Parent Details" (click)="openParentModal(stu)">
+                      👨‍👩‍👧 Parent Profile
+                    </button>
+                    <button class="btn-action btn-reset" title="Reset Student Password" (click)="resetPassword(stu)">
+                      🔑
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </app-ux-state>
+  }
+
+  <!-- ──────────────────────────────────────────────────────────────
+       INDIVIDUAL ADMISSION MODAL
+       ────────────────────────────────────────────────────────────── -->
+  @if (showEnrollModal()) {
+    <div class="modal-overlay" (click)="closeEnrollModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>New Student Admission</h2>
+          <button class="close-btn" (click)="closeEnrollModal()">✕</button>
+        </div>
+
+        @if (modalErrorMessage()) {
+          <div class="modal-error-banner">
+            <span class="error-icon">⚠️</span>
+            <div class="error-text">{{ modalErrorMessage() }}</div>
+            <button type="button" class="error-close" (click)="modalErrorMessage.set(null)">✕</button>
+          </div>
+        }
+
+        <form [formGroup]="enrollForm" (ngSubmit)="saveEnrollment()">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Student Full Name * (Bilingual / Telugu NFC)</label>
+              <input formControlName="name" placeholder="e.g. Rahul Sharma / రాహుల్ శర్మ" />
+            </div>
+
+            <div class="form-group">
+              <label>Standard / Class *</label>
+              <select formControlName="standardId">
+                <option value="">-- Choose Class --</option>
+                @for (std of standards(); track std.id) {
+                  <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Section *</label>
+              <select formControlName="section">
+                <option value="A">Section A</option>
+                <option value="B">Section B</option>
+                <option value="C">Section C</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Roll Number *</label>
+              <input formControlName="rollNumber" placeholder="e.g. 10-A-01" />
+            </div>
+
+            <div class="form-group">
+              <label>Gender *</label>
+              <select formControlName="gender">
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Date of Birth *</label>
+              <input formControlName="dob" type="date" />
+            </div>
+
+            <div class="form-group">
+              <label>Parent Phone (IDOR Key) *</label>
+              <input
+                formControlName="parentPhone"
+                placeholder="10-digit mobile (e.g. 9848011223)"
+                (input)="onParentPhoneChange($any($event.target).value)"
+              />
+            </div>
+
+            <!-- Smart Existing Parent Sibling Detection Card -->
+            @if (detectedExistingParent()) {
+              <div class="sibling-detected-box full-width">
+                <span class="icon">💡</span>
+                <div class="text">
+                  <strong>Existing Parent Profile Detected:</strong>
+                  {{ detectedExistingParent()?.name }} ({{ detectedExistingParent()?.relation }}) with {{ detectedExistingParent()?.childrenCount }} child(ren) currently enrolled in this school. This student will be automatically linked as a sibling.
+                </div>
+              </div>
+            }
+
+            <div class="form-group">
+              <label>Parent / Guardian Name</label>
+              <input formControlName="parentName" placeholder="e.g. V. Srinivasa Rao / వి. శ్రీనివాసరావు" />
+            </div>
+
+            <div class="form-group">
+              <label>Relationship</label>
+              <select formControlName="parentRelation">
+                <option value="FATHER">Father</option>
+                <option value="MOTHER">Mother</option>
+                <option value="GUARDIAN">Guardian</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label>Student / Parent Email (Optional)</label>
+              <input formControlName="email" type="email" placeholder="student@school.org" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeEnrollModal()">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="enrollForm.invalid || isSubmitting()">
+              {{ isSubmitting() ? 'Enrolling...' : 'Confirm Admission' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ──────────────────────────────────────────────────────────────
+       EDIT STUDENT MODAL
+       ────────────────────────────────────────────────────────────── -->
+  @if (showEditStudentModal()) {
+    <div class="modal-overlay" (click)="closeEditStudentModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Edit Student Details</h2>
+          <button class="close-btn" (click)="closeEditStudentModal()">✕</button>
+        </div>
+
+        @if (modalErrorMessage()) {
+          <div class="modal-error-banner">
+            <span class="error-icon">⚠️</span>
+            <div class="error-text">{{ modalErrorMessage() }}</div>
+            <button type="button" class="error-close" (click)="modalErrorMessage.set(null)">✕</button>
+          </div>
+        }
+
+        <form [formGroup]="editStudentForm" (ngSubmit)="saveStudentEdit()">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Student Full Name * (Telugu NFC Support)</label>
+              <input formControlName="name" placeholder="Full name" />
+            </div>
+
+            <div class="form-group">
+              <label>Standard / Class *</label>
+              <select formControlName="standardId">
+                @for (std of standards(); track std.id) {
+                  <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Section *</label>
+              <select formControlName="section">
+                <option value="A">Section A</option>
+                <option value="B">Section B</option>
+                <option value="C">Section C</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Roll Number *</label>
+              <input formControlName="rollNumber" />
+            </div>
+
+            <div class="form-group">
+              <label>Gender *</label>
+              <select formControlName="gender">
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Date of Birth *</label>
+              <input formControlName="dob" type="date" />
+            </div>
+
+            <div class="form-group">
+              <label>Parent Phone (IDOR Key) *</label>
+              <input formControlName="parentPhone" />
+            </div>
+
+            <div class="form-group full-width">
+              <label>Student Email</label>
+              <input formControlName="email" type="email" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeEditStudentModal()">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="editStudentForm.invalid || isSubmitting()">
+              {{ isSubmitting() ? 'Saving...' : '💾 Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ──────────────────────────────────────────────────────────────
+       PARENT PROFILE & MULTI-CHILD SIBLINGS MANAGEMENT MODAL
+       ────────────────────────────────────────────────────────────── -->
+  @if (showParentModal() && activeParent()) {
+    <div class="modal-overlay" (click)="closeParentModal()">
+      <div class="modal-dialog modal-large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-lock">
+            <h2>Parent Profile & Linked Siblings</h2>
+            <span class="role-badge">ROLE_ADMIN Authorized</span>
+          </div>
+          <button class="close-btn" (click)="closeParentModal()">✕</button>
+        </div>
+
+        @if (modalErrorMessage()) {
+          <div class="modal-error-banner">
+            <span class="error-icon">⚠️</span>
+            <div class="error-text">{{ modalErrorMessage() }}</div>
+            <button type="button" class="error-close" (click)="modalErrorMessage.set(null)">✕</button>
+          </div>
+        }
+
+        @if (!isEditingParent()) {
+          <!-- Parent Profile View Mode -->
+          <div class="parent-view-body">
+            <div class="parent-summary-card glass-panel">
+              <div class="parent-info-grid">
+                <div class="info-block">
+                  <span class="label">Parent Name</span>
+                  <strong>{{ activeParent()?.name | teluguNfc }}</strong>
+                </div>
+                <div class="info-block">
+                  <span class="label">Relationship</span>
+                  <strong>{{ activeParent()?.relation || 'FATHER' }}</strong>
+                </div>
+                <div class="info-block">
+                  <span class="label">Primary Phone (IDOR Key)</span>
+                  <strong class="highlight-text">{{ activeParent()?.phone }}</strong>
+                </div>
+                <div class="info-block">
+                  <span class="label">Alternate Phone</span>
+                  <span>{{ activeParent()?.alternatePhone || '—' }}</span>
+                </div>
+                <div class="info-block">
+                  <span class="label">Email Address</span>
+                  <span>{{ activeParent()?.email || '—' }}</span>
+                </div>
+                <div class="info-block">
+                  <span class="label">Occupation</span>
+                  <span>{{ activeParent()?.occupation || '—' }}</span>
+                </div>
+                <div class="info-block full-width">
+                  <span class="label">Residential Address</span>
+                  <span>{{ activeParent()?.address || '—' }}</span>
+                </div>
+              </div>
+
+              <div class="edit-parent-cta">
+                <button class="btn-secondary" (click)="toggleEditParent()">
+                  ✏️ Edit Parent Details
+                </button>
+              </div>
+            </div>
+
+            <!-- Linked Children / Siblings Section -->
+            <div class="siblings-section">
+              <div class="section-title-row">
+                <h3>Linked Children in School ({{ activeParent()?.linkedStudents?.length || 0 }} Enrolled)</h3>
+                <button class="btn-link-action" (click)="openLinkSiblingSection()">
+                  ➕ Link Another Student
+                </button>
+              </div>
+
+              <!-- Inline Link Sibling Selector Form -->
+              @if (showLinkSiblingForm()) {
+                <div class="link-sibling-picker glass-panel">
+                  <h4>Attach Enrolled Student as Sibling:</h4>
+                  <div class="picker-controls">
+                    <select [(ngModel)]="selectedStudentToLink">
+                      @for (stu of availableStudentsToLink(); track stu.id) {
+                        <option [value]="stu.id">{{ stu.name }} (Std {{ stu.standardNumber }}-{{ stu.section }}, Roll: {{ stu.rollNumber }})</option>
+                      }
+                    </select>
+                    <button class="btn-primary" [disabled]="!selectedStudentToLink() || isSubmitting()" (click)="confirmLinkSibling()">
+                      Confirm Link
+                    </button>
+                    <button class="btn-secondary" (click)="showLinkSiblingForm.set(false)">Cancel</button>
+                  </div>
+                </div>
+              }
+
+              <!-- Siblings Grid -->
+              <div class="siblings-grid">
+                @for (sibling of activeParent()?.linkedStudents; track sibling.id) {
+                  <div class="sibling-card glass-panel">
+                    <div class="sibling-header">
+                      <span class="sibling-icon">🎓</span>
+                      <div class="sibling-titles">
+                        <h4>{{ sibling.name | teluguNfc }}</h4>
+                        <span class="sibling-meta">Class {{ sibling.standardNumber }}-{{ sibling.section }} | Roll: {{ sibling.rollNumber }}</span>
+                      </div>
+                    </div>
+                    <div class="sibling-actions">
+                      <button class="btn-unlink" title="Unlink Sibling" (click)="unlinkSibling(sibling)">
+                        Unlink
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        } @else {
+          <!-- Parent Edit Mode -->
+          <form [formGroup]="parentEditForm" (ngSubmit)="saveParentDetails()">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Parent Full Name * (Telugu NFC Support)</label>
+                <input formControlName="name" placeholder="Full name" />
+              </div>
+
+              <div class="form-group">
+                <label>Relationship *</label>
+                <select formControlName="relation">
+                  <option value="FATHER">Father</option>
+                  <option value="MOTHER">Mother</option>
+                  <option value="GUARDIAN">Guardian</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Primary Phone (IDOR Key) *</label>
+                <input formControlName="phone" placeholder="10-digit mobile" />
+              </div>
+
+              <div class="form-group">
+                <label>Alternate Contact</label>
+                <input formControlName="alternatePhone" placeholder="Optional phone" />
+              </div>
+
+              <div class="form-group">
+                <label>Email Address</label>
+                <input formControlName="email" type="email" placeholder="parent@email.com" />
+              </div>
+
+              <div class="form-group">
+                <label>Occupation</label>
+                <input formControlName="occupation" placeholder="e.g. Govt Employee, Agriculture" />
+              </div>
+
+              <div class="form-group">
+                <label>Preferred Language</label>
+                <select formControlName="preferredLanguage">
+                  <option value="TELUGU">Telugu (తెలుగు)</option>
+                  <option value="ENGLISH">English</option>
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Residential Address</label>
+                <textarea formControlName="address" rows="2" placeholder="Full home address"></textarea>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="toggleEditParent()">Cancel</button>
+              <button type="submit" class="btn-primary" [disabled]="parentEditForm.invalid || isSubmitting()">
+                {{ isSubmitting() ? 'Saving...' : '💾 Save Parent Changes' }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ──────────────────────────────────────────────────────────────
+       BULK CSV INTAKE MODAL
+       ────────────────────────────────────────────────────────────── -->
+  @if (showBulkModal()) {
+    <div class="modal-overlay" (click)="closeBulkModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Bulk CSV Intake</h2>
+          <button class="close-btn" (click)="closeBulkModal()">✕</button>
+        </div>
+
+        @if (modalErrorMessage()) {
+          <div class="modal-error-banner">
+            <span class="error-icon">⚠️</span>
+            <div class="error-text">{{ modalErrorMessage() }}</div>
+            <button type="button" class="error-close" (click)="modalErrorMessage.set(null)">✕</button>
+          </div>
+        }
+
+        <div class="bulk-form-body">
+          <div class="form-group">
+            <label>Target Standard / Class *</label>
+            <select [(ngModel)]="bulkStandardId">
+              <option value="">-- Choose Class --</option>
+              @for (std of standards(); track std.id) {
+                <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="file-drop-zone">
+            <span>📁 Select Roster CSV File</span>
+            <input type="file" accept=".csv" (change)="onFileSelected($event)" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeBulkModal()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!selectedFile || isSubmitting()" (click)="submitBulkUpload()">
+            {{ isSubmitting() ? 'Uploading...' : 'Process CSV' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

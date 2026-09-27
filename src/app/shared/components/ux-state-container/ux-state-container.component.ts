@@ -38,7 +38,9 @@ export type PageState = UxStateType;
       @case ('error') {
         <app-error-state
           [title]="errorTitle"
+          [teluguSubtitle]="errorTeluguSubtitle"
           [message]="errorMessage"
+          [technicalDetails]="technicalDetails"
           (retry)="onRetry.emit()"
         />
       }
@@ -76,8 +78,10 @@ export class UxStateContainerComponent {
   @Input() emptyCtaText = '';
   @Input() emptyMascotSpeech = '';
   @Input() showMascot = false;
-  @Input() errorTitle = 'Connection Issue';
-  @Input() errorMessage = 'Something went wrong while fetching data.';
+  @Input() errorTitle = 'Unable to Connect to School Server';
+  @Input() errorTeluguSubtitle = 'పాఠశాల సర్వర్‌తో అనుసంధానం కాలేకపోయింది';
+  @Input() errorMessage = 'We are having trouble connecting to the school system right now. Please check your internet connection or try again in a few moments.';
+  @Input() technicalDetails = '';
   @Output() onRetry = new EventEmitter<void>();
   @Output() onEmptyCta = new EventEmitter<void>();
 }

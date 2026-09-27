@@ -42,6 +42,16 @@ export class AcademicService {
     return this.http.post<AcademicYearResponse>(`${this.apiUrl}/api/academic/years`, request);
   }
 
+  updateAcademicYear(id: string | number, request: Partial<AcademicYearRequest>): Observable<AcademicYearResponse> {
+    return this.http.put<AcademicYearResponse>(`${this.apiUrl}/api/academic/years/${encodeURIComponent(String(id))}`, request);
+  }
+
+  setActiveAcademicYear(id: string | number, schoolId?: string | number): Observable<AcademicYearResponse> {
+    let params = new HttpParams();
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.put<AcademicYearResponse>(`${this.apiUrl}/api/academic/years/${encodeURIComponent(String(id))}/set-active`, {}, { params });
+  }
+
   // Standards
   getStandards(schoolId?: string | number, academicYearId?: string | number): Observable<StandardResponse[]> {
     const sId = schoolId || this.auth.currentUser()?.schoolId;
@@ -87,6 +97,14 @@ export class AcademicService {
 
   createSubject(request: SubjectRequest): Observable<SubjectResponse> {
     return this.http.post<SubjectResponse>(`${this.apiUrl}/api/academic/subjects`, request);
+  }
+
+  updateSubject(id: string | number, request: Partial<SubjectRequest>): Observable<SubjectResponse> {
+    return this.http.put<SubjectResponse>(`${this.apiUrl}/api/academic/subjects/${encodeURIComponent(String(id))}`, request);
+  }
+
+  deleteSubject(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/api/academic/subjects/${encodeURIComponent(String(id))}`);
   }
 
   // Lessons

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -169,7 +169,7 @@ export class LoginComponent {
 
     this.auth.login({ username, password }).subscribe({
       next: (response) => {
-        console.log('[LoginComponent] ✅ Login succeeded! Profile received:', response);
+        console.log('[LoginComponent] Login succeeded! Profile received:', response);
         this.isLoading.set(false);
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
         if (returnUrl) {
@@ -182,7 +182,7 @@ export class LoginComponent {
         const role = rawRole.startsWith('ROLE_') ? rawRole.substring(5) : rawRole;
         console.log('[LoginComponent] User role resolved to:', role);
 
-        if (role === 'ADMIN') {
+        if (role === 'ADMIN' || role === 'DIGITAL_CLASS_ADMIN') {
           console.log('[LoginComponent] Navigating to /admin');
           this.router.navigate(['/admin']);
         } else if (role === 'TEACHER') {
@@ -197,7 +197,7 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        console.error('[LoginComponent] ❌ Login error received:', err);
+        console.error('[LoginComponent] Login error received:', err);
         this.isLoading.set(false);
         if (err.status === 401) {
           this.errorMessage.set('Invalid username or password.');

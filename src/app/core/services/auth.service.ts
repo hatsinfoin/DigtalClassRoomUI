@@ -108,6 +108,34 @@ export class AuthService {
     return this._token();
   }
 
+  getSchoolId(): string | null {
+    const user = this._user();
+    if (user?.schoolId) return String(user.schoolId);
+    if ((user as any)?.school_id) return String((user as any).school_id);
+    if ((user as any)?.school?.id) return String((user as any).school.id);
+
+    // Fallback: parse JWT token payload
+    const token = this._token();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const sId = payload.schoolId || payload.school_id || payload.school || payload.tenantId;
+        if (sId) return String(sId);
+      } catch {}
+    }
+    return null;
+  }
+
+  isPlatformAdmin(): boolean {
+    const rawRole = String(this._user()?.role || '');
+    return rawRole === 'DIGITAL_CLASS_ADMIN' || rawRole === 'SUPER_ADMIN' || rawRole === 'ROLE_DIGITAL_CLASS_ADMIN';
+  }
+
+  isSchoolAdmin(): boolean {
+    const rawRole = String(this._user()?.role || '');
+    return rawRole === 'ADMIN' || rawRole === 'ROLE_ADMIN' || (!this.isPlatformAdmin() && !!this.getSchoolId());
+  }
+
   private setToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
     this._token.set(token);

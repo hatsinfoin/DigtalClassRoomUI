@@ -8,7 +8,10 @@ import {
   SchoolUpdateRequest,
   StudentEnrollmentRequest,
   StudentEnrollmentResponse,
+  StudentUpdateRequest,
   BulkEnrollmentResult,
+  ParentProfileResponse,
+  ParentUpdateRequest,
   GradingPolicyResponse,
   UpdateGradingPolicyRequest,
   IngestionRequest,
@@ -28,11 +31,11 @@ export class AdminService {
   }
 
   getSchool(id: string | number): Observable<SchoolResponse> {
-    return this.http.get<SchoolResponse>(`${this.apiUrl}/api/schools/${id}`);
+    return this.http.get<SchoolResponse>(`${this.apiUrl}/api/schools/${encodeURIComponent(String(id))}`);
   }
 
   getSchoolByCode(code: string): Observable<SchoolResponse> {
-    return this.http.get<SchoolResponse>(`${this.apiUrl}/api/schools/code/${code}`);
+    return this.http.get<SchoolResponse>(`${this.apiUrl}/api/schools/code/${encodeURIComponent(code)}`);
   }
 
   createSchool(request: SchoolRequest): Observable<SchoolResponse> {
@@ -40,18 +43,36 @@ export class AdminService {
   }
 
   updateSchool(id: string | number, request: SchoolUpdateRequest): Observable<SchoolResponse> {
-    return this.http.put<SchoolResponse>(`${this.apiUrl}/api/schools/${id}`, request);
+    return this.http.put<SchoolResponse>(`${this.apiUrl}/api/schools/${encodeURIComponent(String(id))}`, request);
   }
 
   deleteSchool(id: string | number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/api/schools/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/api/schools/${encodeURIComponent(String(id))}`);
   }
 
-  // Student Admissions
+  // Student Admissions & Roster
+  getStudents(standardId?: string | number, section?: string, schoolId?: string | number): Observable<StudentEnrollmentResponse[]> {
+    let params = new HttpParams();
+    if (standardId) params = params.set('standardId', String(standardId));
+    if (section) params = params.set('section', section);
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.get<StudentEnrollmentResponse[]>(`${this.apiUrl}/api/management/students`, { params });
+  }
+
   enrollStudent(request: StudentEnrollmentRequest): Observable<{ id: string | number; username: string; tempPassword?: string }> {
     return this.http.post<{ id: string | number; username: string; tempPassword?: string }>(
       `${this.apiUrl}/api/management/students`,
       request
+    );
+  }
+
+  updateStudent(id: string | number, request: StudentUpdateRequest, schoolId?: string | number): Observable<StudentEnrollmentResponse> {
+    let params = new HttpParams();
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.put<StudentEnrollmentResponse>(
+      `${this.apiUrl}/api/management/students/${encodeURIComponent(String(id))}`,
+      request,
+      { params }
     );
   }
 
@@ -63,6 +84,37 @@ export class AdminService {
     return this.http.post<{ message: string; tempPassword?: string }>(
       `${this.apiUrl}/api/management/students/${id}/reset-password`,
       { newPassword }
+    );
+  }
+
+  // Parent Management (1:N Siblings, IDOR Key, Admin Edit)
+  getParentProfile(parentPhone: string, schoolId?: string | number): Observable<ParentProfileResponse> {
+    let params = new HttpParams();
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.get<ParentProfileResponse>(
+      `${this.apiUrl}/api/management/parents/${encodeURIComponent(parentPhone)}`,
+      { params }
+    );
+  }
+
+  updateParentProfile(parentPhone: string, request: ParentUpdateRequest): Observable<ParentProfileResponse> {
+    return this.http.put<ParentProfileResponse>(
+      `${this.apiUrl}/api/management/parents/${encodeURIComponent(parentPhone)}`,
+      request
+    );
+  }
+
+  linkSiblingToParent(parentPhone: string, studentId: string | number, schoolId?: string | number): Observable<ParentProfileResponse> {
+    return this.http.post<ParentProfileResponse>(
+      `${this.apiUrl}/api/management/parents/${encodeURIComponent(parentPhone)}/link-student`,
+      { studentId, schoolId }
+    );
+  }
+
+  unlinkSiblingFromParent(parentPhone: string, studentId: string | number, schoolId?: string | number): Observable<ParentProfileResponse> {
+    return this.http.post<ParentProfileResponse>(
+      `${this.apiUrl}/api/management/parents/${encodeURIComponent(parentPhone)}/unlink-student`,
+      { studentId, schoolId }
     );
   }
 

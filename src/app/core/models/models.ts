@@ -84,12 +84,17 @@ export function resolveAgeGroup(standardNumber: number): AgeGroup {
 // ============================================================
 export interface SchoolRequest {
   name: string; // NFC Telugu-safe
-  code: string;
+  schoolName?: string;
+  code?: string;
+  schoolCode: string;
   address: string;
-  phone: string;
-  email: string;
   city: string;
   state: string;
+  country?: string;
+  phone?: string;
+  contactPhone?: string;
+  email?: string;
+  contactEmail?: string;
 }
 
 export interface SchoolUpdateRequest extends Partial<SchoolRequest> {}
@@ -97,12 +102,19 @@ export interface SchoolUpdateRequest extends Partial<SchoolRequest> {}
 export interface SchoolResponse {
   id: number | string;
   name: string;
-  code: string;
+  schoolName?: string;
+  code?: string;
+  schoolCode: string;
   address: string;
-  phone: string;
-  email: string;
   city: string;
   state: string;
+  country?: string;
+  enabled?: boolean;
+  createdAt?: string;
+  phone?: string;
+  contactPhone?: string;
+  email?: string;
+  contactEmail?: string;
 }
 
 // ============================================================
@@ -110,21 +122,27 @@ export interface SchoolResponse {
 // ============================================================
 export interface AcademicYearRequest {
   schoolId: number | string;
+  schoolName?: string;
+  schoolCode?: string;
   year: string;
-  label: string;
+  label?: string;
   startDate: string;
   endDate: string;
-  isActive: boolean;
+  isActive?: boolean;
+  active?: boolean;
 }
 
 export interface AcademicYearResponse {
   id: number | string;
   schoolId: number | string;
+  schoolName?: string;
+  schoolCode?: string;
   year: string;
-  label: string;
+  label?: string;
   startDate: string;
   endDate: string;
-  isActive: boolean;
+  isActive?: boolean;
+  active?: boolean;
 }
 
 // ============================================================
@@ -132,7 +150,10 @@ export interface AcademicYearResponse {
 // ============================================================
 export interface StandardRequest {
   schoolId: number | string;
+  schoolName?: string;
+  schoolCode?: string;
   academicYearId: number | string;
+  academicYearName?: string;
   standardNumber: number;
   name: string;
   section: string;
@@ -141,7 +162,10 @@ export interface StandardRequest {
 export interface StandardResponse {
   id: number | string;
   schoolId: number | string;
+  schoolName?: string;
+  schoolCode?: string;
   academicYearId: number | string;
+  academicYearName?: string;
   standardNumber: number;
   name: string; // Telugu NFC — never normalize
   section: string;
@@ -683,6 +707,54 @@ export interface StudentEnrollmentResponse {
   dob?: string;
   username?: string;
   tempPassword?: string;
+}
+
+export interface StudentUpdateRequest {
+  name: string;
+  rollNumber: string;
+  standardId: number | string;
+  section: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  dob: string;
+  parentPhone: string;
+  email?: string;
+}
+
+export interface LinkedSiblingSummary {
+  id: string | number;
+  name: string;
+  rollNumber: string;
+  standardNumber: number;
+  standardId?: string | number;
+  section: string;
+  gender?: string;
+  status?: string;
+}
+
+export interface ParentProfileResponse {
+  id?: string | number;
+  schoolId: string | number;
+  name: string;
+  relation: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'OTHER' | string;
+  phone: string;
+  alternatePhone?: string;
+  email?: string;
+  occupation?: string;
+  address?: string;
+  preferredLanguage?: 'TELUGU' | 'ENGLISH' | string;
+  linkedStudents?: LinkedSiblingSummary[];
+}
+
+export interface ParentUpdateRequest {
+  schoolId: string | number;
+  name: string;
+  relation: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'OTHER' | string;
+  phone: string;
+  alternatePhone?: string;
+  email?: string;
+  occupation?: string;
+  address?: string;
+  preferredLanguage?: 'TELUGU' | 'ENGLISH' | string;
 }
 
 export interface UpdateGradingPolicyRequest {

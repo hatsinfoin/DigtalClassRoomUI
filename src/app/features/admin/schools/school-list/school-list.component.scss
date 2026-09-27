@@ -139,6 +139,20 @@
         font-weight: 600;
         color: #fff;
       }
+
+      &.contact-cell {
+        font-size: 13px;
+        .contact-line {
+          color: rgba(255, 255, 255, 0.85);
+          font-family: 'Inter', sans-serif;
+          white-space: nowrap;
+          &.email {
+            color: #8B85FF;
+            font-size: 12px;
+            margin-top: 2px;
+          }
+        }
+      }
     }
 
     tr:hover td {
@@ -255,6 +269,25 @@
             &:focus {
               border-color: #6366f1;
             }
+
+            &.invalid {
+              border-color: #FF6B6B !important;
+              background: rgba(255, 107, 107, 0.05);
+            }
+          }
+
+          .field-error {
+            font-size: 12px;
+            color: #FF6B6B;
+            font-family: 'Inter', sans-serif;
+            margin-top: 2px;
+          }
+
+          .field-hint {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Inter', sans-serif;
+            margin-top: 2px;
           }
         }
       }

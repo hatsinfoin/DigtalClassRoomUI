@@ -1,27 +1,40 @@
-import { inject } from '@angular/core';
+﻿import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { UserRole } from '../models/models';
 
 /** PublicGuard — redirects already-authenticated users to their portal */
 export const PublicGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const isAuth = auth.isAuthenticated();
+  const user = auth.currentUser();
   console.log('[PublicGuard] Checking public route access. isAuthenticated:', isAuth);
 
-  if (!isAuth) return true;
+  if (!isAuth || !user) {
+    if (isAuth && !user) {
+      auth.logout();
+    }
+    return true;
+  }
 
-  const rawRole = auth.currentUser()?.role as string | undefined;
+  const rawRole = user.role as string | undefined;
   const role = rawRole ? (rawRole.startsWith('ROLE_') ? rawRole.substring(5) : rawRole) : '';
   console.log('[PublicGuard] User already authenticated. Role:', role, '-> redirecting to portal');
 
   const destinations: Record<string, string> = {
-    ADMIN:   '/admin',
+    ADMIN: '/admin',
+    DIGITAL_CLASS_ADMIN: '/admin',
     TEACHER: '/teacher',
-    PARENT:  '/parent',
+    PARENT: '/parent',
     STUDENT: '/student',
-    USER:    '/student'
+    USER: '/student'
   };
-  return router.createUrlTree([destinations[role] ?? '/student']);
+
+  const target = destinations[role];
+  if (target) {
+    return router.createUrlTree([target]);
+  }
+
+  auth.logout();
+  return true;
 };

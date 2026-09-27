@@ -25,6 +25,16 @@ import { UxStateContainerComponent, UxStateType } from '../../../shared/componen
           <h1 class="teacher-name">Welcome, {{ user()?.name || 'Educator' }} 👨‍🏫</h1>
           <p class="teacher-school">{{ user()?.schoolId || 'Digital Public School' }} • Staff Portal</p>
         </div>
+        <div class="header-actions">
+          <button class="logout-btn" (click)="logout()" title="Log out" aria-label="Logout">
+            <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span class="logout-text">Logout</span>
+          </button>
+        </div>
       </header>
 
       <app-ux-state
@@ -207,5 +217,11 @@ export class TeacherHomeComponent implements OnInit {
 
   openSubmissions(activityId: string | number): void {
     this.router.navigate(['/teacher/activities', activityId, 'submissions']);
+  }
+
+  logout(): void {
+    console.log('[TeacherHome] User initiated logout.');
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }
