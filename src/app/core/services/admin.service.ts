@@ -10,12 +10,17 @@ import {
   StudentEnrollmentResponse,
   StudentUpdateRequest,
   BulkEnrollmentResult,
+  NextRollNumberResponse,
   ParentProfileResponse,
   ParentUpdateRequest,
   GradingPolicyResponse,
   UpdateGradingPolicyRequest,
   IngestionRequest,
-  IngestionJobResponse
+  IngestionJobResponse,
+  SchoolOverviewResponse,
+  StandardAnalyticsResponse,
+  SectionAnalyticsResponse,
+  SubjectAnalyticsResponse
 } from '../models/models';
 
 @Injectable({
@@ -59,6 +64,15 @@ export class AdminService {
     return this.http.get<StudentEnrollmentResponse[]>(`${this.apiUrl}/api/management/students`, { params });
   }
 
+  getNextRollNumber(standardId: string | number, section: string, academicYear: string = '2026-2027', schoolId?: string | number): Observable<NextRollNumberResponse> {
+    let params = new HttpParams()
+      .set('standardId', String(standardId))
+      .set('section', section)
+      .set('academicYear', academicYear);
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.get<NextRollNumberResponse>(`${this.apiUrl}/api/management/students/next-roll-number`, { params });
+  }
+
   enrollStudent(request: StudentEnrollmentRequest): Observable<{ id: string | number; username: string; tempPassword?: string }> {
     return this.http.post<{ id: string | number; username: string; tempPassword?: string }>(
       `${this.apiUrl}/api/management/students`,
@@ -82,8 +96,17 @@ export class AdminService {
 
   resetStudentPassword(id: string | number, newPassword?: string): Observable<{ message: string; tempPassword?: string }> {
     return this.http.post<{ message: string; tempPassword?: string }>(
-      `${this.apiUrl}/api/management/students/${id}/reset-password`,
+      `${this.apiUrl}/api/management/students/${encodeURIComponent(String(id))}/reset-password`,
       { newPassword }
+    );
+  }
+
+  deleteStudent(id: string | number, schoolId?: string | number): Observable<void> {
+    let params = new HttpParams();
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.delete<void>(
+      `${this.apiUrl}/api/management/students/${encodeURIComponent(String(id))}`,
+      { params }
     );
   }
 
@@ -129,13 +152,32 @@ export class AdminService {
     return this.http.put<GradingPolicyResponse>(`${this.apiUrl}/api/management/grading-policy`, request, { params });
   }
 
+  // Academic Performance & System Analytics (Phase 10A & 10C)
+  getSchoolOverview(schoolId?: string | number): Observable<SchoolOverviewResponse> {
+    let params = new HttpParams();
+    if (schoolId) params = params.set('schoolId', String(schoolId));
+    return this.http.get<SchoolOverviewResponse>(`${this.apiUrl}/api/management/analytics/school-summary`, { params });
+  }
+
+  getStandardAnalytics(standardId: string): Observable<StandardAnalyticsResponse> {
+    return this.http.get<StandardAnalyticsResponse>(`${this.apiUrl}/api/management/analytics/standards/${encodeURIComponent(standardId)}`);
+  }
+
+  getSectionAnalytics(standardId: string, section: string): Observable<SectionAnalyticsResponse> {
+    return this.http.get<SectionAnalyticsResponse>(`${this.apiUrl}/api/management/analytics/standards/${encodeURIComponent(standardId)}/sections/${encodeURIComponent(section)}`);
+  }
+
+  getSubjectAnalytics(standardId: string, subjectId: string): Observable<SubjectAnalyticsResponse> {
+    return this.http.get<SubjectAnalyticsResponse>(`${this.apiUrl}/api/management/analytics/standards/${encodeURIComponent(standardId)}/subjects/${encodeURIComponent(subjectId)}`);
+  }
+
   // Async Ingestion Pipeline (Invariant I5)
   startIngestion(request: IngestionRequest): Observable<IngestionJobResponse> {
     return this.http.post<IngestionJobResponse>(`${this.apiUrl}/api/ingestion`, request);
   }
 
   getIngestionJob(jobId: string): Observable<IngestionJobResponse> {
-    return this.http.get<IngestionJobResponse>(`${this.apiUrl}/api/ingestion/${jobId}`);
+    return this.http.get<IngestionJobResponse>(`${this.apiUrl}/api/ingestion/${encodeURIComponent(jobId)}`);
   }
 
   listIngestionJobs(schoolCode?: string, status?: string): Observable<IngestionJobResponse[]> {
@@ -146,10 +188,10 @@ export class AdminService {
   }
 
   getIngestionStatusByFile(fileId: string | number): Observable<IngestionJobResponse> {
-    return this.http.get<IngestionJobResponse>(`${this.apiUrl}/api/ingestion/status/${fileId}`);
+    return this.http.get<IngestionJobResponse>(`${this.apiUrl}/api/ingestion/status/${encodeURIComponent(String(fileId))}`);
   }
 
   retryIngestion(fileId: string | number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/api/ingestion/retry/${fileId}`, {});
+    return this.http.post<void>(`${this.apiUrl}/api/ingestion/retry/${encodeURIComponent(String(fileId))}`, {});
   }
 }

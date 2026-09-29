@@ -520,46 +520,6 @@ export interface SectionGradebookResponse {
   subjectAverages?: { [subjectId: string]: number };
 }
 
-export interface SectionMetricItem {
-  section: string;
-  studentCount: number;
-  averageScore: number;
-  passRate: number;
-}
-
-export interface SubjectMetricItem {
-  subjectId: number | string;
-  subjectName: string;
-  averageScore: number;
-  passRate: number;
-}
-
-export interface StandardAnalyticsResponse {
-  standardId: number | string;
-  totalStudents: number;
-  averageScore: number;
-  passRate: number;
-  sections?: SectionMetricItem[];
-}
-
-export interface SectionAnalyticsResponse {
-  standardId: number | string;
-  section: string;
-  totalStudents: number;
-  averageScore: number;
-  passRate: number;
-  subjectMetrics?: SubjectMetricItem[];
-}
-
-export interface SubjectAnalyticsResponse {
-  standardId: number | string;
-  subjectId: number | string;
-  averageScore: number;
-  passRate: number;
-  highestScore?: number;
-  lowestScore?: number;
-}
-
 export interface ExamParticipationSummaryResponse {
   activityId: number | string;
   attempted: number;
@@ -685,8 +645,25 @@ export interface StudentEnrollmentRequest {
   gender: 'MALE' | 'FEMALE' | 'OTHER';
   dob: string;
   email?: string;
+  parentName?: string;
+  parentRelation?: 'FATHER' | 'MOTHER' | 'GUARDIAN' | 'PARENT' | string;
+  alternatePhone?: string;
+  occupation?: string;
+  address?: string;
+  preferredLanguage?: 'TELUGU' | 'ENGLISH' | 'HINDI' | string;
 }
 
+
+export interface NextRollNumberResponse {
+  schoolId: string;
+  academicYear: string;
+  yearCode: string;
+  standardId: string;
+  standardCode: string;
+  section: string;
+  nextSequence: number;
+  suggestedRollNumber: string;
+}
 export interface BulkEnrollmentResult {
   totalProcessed: number;
   successCount: number;
@@ -707,6 +684,7 @@ export interface StudentEnrollmentResponse {
   dob?: string;
   username?: string;
   tempPassword?: string;
+  siblingCount?: number;
 }
 
 export interface StudentUpdateRequest {
@@ -833,3 +811,90 @@ export interface GradingPolicyResponse {
 export type UxState =
   | 'normal' | 'loading' | 'empty' | 'error'
   | 'offline' | 'expired' | 'no-access' | 'success';
+
+// ============================================================
+// ACADEMIC PERFORMANCE & ANALYTICS (Phase 10A & 10C)
+// ============================================================
+export interface StandardMetricItem {
+  standardId: string | number;
+  totalEnrolledStudents: number;
+  distinctStudentsAttempted: number;
+  participationRate: number;
+  avgPercentage: number;
+  passPercentage: number;
+}
+
+export interface SectionMetricItem {
+  section: string;
+  totalAttempts?: number;
+  studentCount?: number;
+  avgPercentage?: number;
+  averageScore?: number;
+  passPercentage?: number;
+  passRate?: number;
+}
+
+export interface SubjectMetricItem {
+  subjectId: string | number;
+  subjectName?: string;
+  totalAttempts?: number;
+  avgPercentage?: number;
+  averageScore?: number;
+  passPercentage?: number;
+  passRate?: number;
+}
+
+export interface SchoolOverviewResponse {
+  schoolId: string | number;
+  totalEnrolledStudents: number;
+  totalTeachers: number;
+  totalStandards: number;
+  totalAttempts: number;
+  schoolAveragePercentage: number;
+  schoolPassPercentage: number;
+  standardMetrics: StandardMetricItem[];
+  subjectMetrics: SubjectMetricItem[];
+}
+
+export interface StandardAnalyticsResponse {
+  standardId: string | number;
+  totalEnrolledStudents?: number;
+  distinctStudentsAttempted?: number;
+  participationRate?: number;
+  inactiveStudentsCount?: number;
+  totalAttempts?: number;
+  averageScore?: number;
+  standardAveragePercentage?: number;
+  passRate?: number;
+  standardPassPercentage?: number;
+  sections?: SectionMetricItem[];
+  sectionMetrics?: SectionMetricItem[];
+  subjectMetrics?: SubjectMetricItem[];
+}
+
+export interface SectionAnalyticsResponse {
+  standardId: string | number;
+  section: string;
+  totalEnrolledStudents?: number;
+  distinctStudentsAttempted?: number;
+  participationRate?: number;
+  inactiveStudentsCount?: number;
+  totalAttempts?: number;
+  averageScore?: number;
+  sectionAveragePercentage?: number;
+  passRate?: number;
+  sectionPassPercentage?: number;
+  subjectMetrics?: SubjectMetricItem[];
+}
+
+export interface SubjectAnalyticsResponse {
+  standardId: string | number;
+  subjectId: string | number;
+  totalAttempts?: number;
+  averageScore?: number;
+  subjectAveragePercentage?: number;
+  passRate?: number;
+  subjectPassPercentage?: number;
+  highestScore?: number;
+  lowestScore?: number;
+}

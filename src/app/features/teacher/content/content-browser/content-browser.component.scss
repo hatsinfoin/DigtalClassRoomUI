@@ -2,25 +2,166 @@
   display: block;
   height: 100%;
   overflow-y: auto;
+  background-color: var(--bg-app, #0D1117);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+
+  &.title {
+    height: 18px;
+    width: 65%;
+  }
+
+  &.short {
+    width: 35%;
+  }
+
+  &.full {
+    width: 100%;
+  }
 }
 
 .content-browser-container {
-  padding: var(--space-4, 16px) var(--space-4, 16px) 80px var(--space-4, 16px);
-  max-width: 900px;
+  padding: var(--space-4, 16px) var(--space-4, 16px) 96px var(--space-4, 16px);
+  max-width: 920px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 
+  /* Base Glassmorphic Standard */
+  .glass-card {
+    background: rgba(22, 27, 34, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-2xl, 24px);
+  }
+
+  /* ────────────────────────────────────────────────
+     1. Header Banner with School Identity
+     ──────────────────────────────────────────────── */
   .browser-header {
+    padding: 20px 24px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
-    .header-left {
+    .header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+      .school-profile-badge {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .school-icon-wrap {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          background: rgba(37, 99, 235, 0.18);
+          border: 1px solid rgba(37, 99, 235, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+        }
+
+        .school-meta {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .school-name {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0;
+          }
+
+          .teacher-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            color: #60A5FA;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .create-chapter-btn {
+        background: #2563EB;
+        border: 1px solid #2563EB;
+        color: #FFFFFF;
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 9px 18px;
+        border-radius: var(--radius-full, 9999px);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.45);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+
+        .plus-icon {
+          font-size: 15px;
+          font-weight: 800;
+        }
+
+        &:hover {
+          background: #1D4ED8;
+          transform: translateY(-2px);
+          box-shadow: 0 0 26px rgba(37, 99, 235, 0.65);
+        }
+      }
+    }
+
+    .header-titles {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
 
       .page-title {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -28,6 +169,7 @@
         font-weight: 800;
         color: #FFFFFF;
         margin: 0;
+        letter-spacing: -0.3px;
       }
 
       .page-subtitle {
@@ -39,93 +181,423 @@
     }
   }
 
-  .filter-pills-row {
+  /* ────────────────────────────────────────────────
+     2. Standard Switcher Carousel
+     ──────────────────────────────────────────────── */
+  .standard-switcher-bar {
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
 
-    &::-webkit-scrollbar {
-      display: none;
+    .bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+
+      .section-label {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .active-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #60A5FA;
+
+        &.pulsing {
+          animation: pulseGlow 1.2s infinite ease-in-out;
+        }
+      }
     }
 
-    .filter-pill {
-      background: rgba(28, 33, 40, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.7);
-      font-family: 'Outfit', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: var(--radius-full, 9999px);
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .pills-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px 2px 8px 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
 
-      &.active {
-        background: #2563EB;
-        color: #FFFFFF;
-        border-color: #2563EB;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .standard-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        border-radius: var(--radius-full, 9999px);
+        background: rgba(22, 27, 34, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'Outfit', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        flex-shrink: 0;
+
+        &:hover {
+          border-color: rgba(37, 99, 235, 0.4);
+          color: #FFFFFF;
+          transform: translateY(-2px);
+        }
+
+        &.active {
+          background: rgba(37, 99, 235, 0.25);
+          border-color: #2563EB;
+          color: #FFFFFF;
+          box-shadow: 0 0 20px rgba(37, 99, 235, 0.45);
+          transform: translateY(-2px);
+
+          .pill-check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #2563EB;
+            color: #FFFFFF;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 800;
+          }
+
+          .pill-dot-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #60A5FA;
+            border-radius: 50%;
+            animation: pulseGlow 0.8s infinite ease-in-out;
+          }
+        }
       }
     }
   }
 
-  .lessons-list {
+  /* ────────────────────────────────────────────────
+     3. Standard-Scoped Subjects Filter Tabs
+     ──────────────────────────────────────────────── */
+  .subjects-filter-bar {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 
-    .lesson-card {
-      padding: 16px 20px;
-      border-radius: var(--radius-xl, 20px);
+    .bar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0 4px;
 
-      .lesson-info {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-
-        .chapter-tag {
-          font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          color: #60A5FA;
-          text-transform: uppercase;
-        }
-
-        .lesson-title {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #FFFFFF;
-          margin: 0;
-        }
-
-        .lesson-lang {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: rgba(255, 255, 255, 0.5);
-        }
+      .section-label {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
       }
 
-      .upload-btn {
-        background: rgba(37, 99, 235, 0.15);
-        border: 1px solid rgba(37, 99, 235, 0.35);
-        color: #60A5FA;
+      .count-badge {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #93C5FD;
+        background: rgba(37, 99, 235, 0.18);
+        padding: 2px 8px;
+        border-radius: var(--radius-full, 9999px);
+      }
+    }
+
+    .pills-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .filter-pill {
+        background: rgba(28, 33, 40, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.75);
         font-family: 'Outfit', sans-serif;
         font-size: 13px;
         font-weight: 600;
         padding: 8px 16px;
         border-radius: var(--radius-full, 9999px);
+        white-space: nowrap;
         cursor: pointer;
         transition: all 0.2s ease;
+        flex-shrink: 0;
+
+        .telugu-font {
+          font-family: 'Noto Sans Telugu', sans-serif;
+        }
 
         &:hover {
-          background: #2563EB;
+          border-color: rgba(37, 99, 235, 0.4);
           color: #FFFFFF;
         }
+
+        &.active {
+          background: #2563EB;
+          color: #FFFFFF;
+          border-color: #2563EB;
+          box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
+        }
+      }
+    }
+  }
+
+  /* ────────────────────────────────────────────────
+     4. Summary Stats Bar
+     ──────────────────────────────────────────────── */
+  .summary-stats-bar {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      strong {
+        color: #FFFFFF;
+        font-weight: 700;
+      }
+
+      &.ai-ready {
+        color: #00D9A3;
+        strong {
+          color: #00D9A3;
+        }
+      }
+    }
+
+    .divider {
+      color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  /* ────────────────────────────────────────────────
+     5. Lessons & Chapters List
+     ──────────────────────────────────────────────── */
+  .lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .lesson-card {
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(37, 99, 235, 0.4);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+
+      &.skeleton-lesson-card {
+        min-height: 120px;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .card-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .subject-tag {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: #93C5FD;
+          background: rgba(37, 99, 235, 0.18);
+          padding: 2px 8px;
+          border-radius: var(--radius-full, 9999px);
+          text-transform: uppercase;
+        }
+
+        .chapter-tag {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.6);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      .lesson-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+        line-height: 1.35;
+
+        &.telugu-font {
+          font-family: 'Noto Sans Telugu', sans-serif;
+        }
+      }
+
+      .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .lesson-lang {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.55);
+        }
+
+        .status-chip {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 10px;
+          border-radius: var(--radius-full, 9999px);
+
+          &.ready {
+            background: rgba(0, 217, 163, 0.15);
+            color: #00D9A3;
+            border: 1px solid rgba(0, 217, 163, 0.3);
+          }
+
+          &.processing {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+          }
+
+          &.pending {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.65);
+          }
+        }
+      }
+
+      .card-bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+        .file-size-meta {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.5);
+        }
+
+        .lesson-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          .action-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-full, 9999px);
+            font-family: 'Outfit', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            &.edit-btn {
+              background: rgba(255, 255, 255, 0.08);
+              border: 1px solid rgba(255, 255, 255, 0.18);
+              color: rgba(255, 255, 255, 0.9);
+
+              &:hover {
+                background: rgba(37, 99, 235, 0.25);
+                border-color: #2563EB;
+                color: #FFFFFF;
+                box-shadow: 0 0 14px rgba(37, 99, 235, 0.35);
+              }
+            }
+
+            &.upload-btn {
+              background: rgba(37, 99, 235, 0.15);
+              border: 1px solid rgba(37, 99, 235, 0.35);
+              color: #60A5FA;
+
+              &:hover {
+                background: #2563EB;
+                color: #FFFFFF;
+                box-shadow: 0 0 14px rgba(37, 99, 235, 0.4);
+              }
+            }
+
+            &.view-btn {
+              background: rgba(255, 255, 255, 0.06);
+              border: 1px solid rgba(255, 255, 255, 0.15);
+              color: #FFFFFF;
+
+              &:hover {
+                background: rgba(255, 255, 255, 0.15);
+                border-color: rgba(255, 255, 255, 0.3);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .empty-lessons-box {
+      padding: 36px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+
+      .empty-icon {
+        font-size: 32px;
+      }
+
+      .empty-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin: 0;
+      }
+
+      .empty-desc {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+        margin: 0;
+      }
+
+      .empty-action-btn {
+        margin-top: 10px;
       }
     }
   }

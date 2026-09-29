@@ -110,9 +110,12 @@ export class AcademicService {
   // Lessons
   getLessons(schoolId?: string | number, subjectId?: string | number): Observable<LessonResponse[]> {
     const sId = schoolId || this.auth.currentUser()?.schoolId;
-    let params = new HttpParams();
-    if (sId) params = params.set('schoolId', String(sId));
-    if (subjectId) params = params.set('subjectId', String(subjectId));
+    if (!sId || !subjectId) {
+      return of([]);
+    }
+    const params = new HttpParams()
+      .set('schoolId', String(sId))
+      .set('subjectId', String(subjectId));
     return this.http.get<LessonResponse[]>(`${this.apiUrl}/api/lessons`, { params });
   }
 
@@ -122,6 +125,14 @@ export class AcademicService {
 
   createLesson(request: LessonRequest): Observable<LessonResponse> {
     return this.http.post<LessonResponse>(`${this.apiUrl}/api/lessons`, request);
+  }
+
+  updateLesson(id: string | number, request: Partial<LessonRequest>): Observable<LessonResponse> {
+    return this.http.put<LessonResponse>(`${this.apiUrl}/api/lessons/${encodeURIComponent(String(id))}`, request);
+  }
+
+  deleteLesson(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/api/lessons/${encodeURIComponent(String(id))}`);
   }
 
   getContentUnits(lessonId: string | number, schoolId?: string | number, language?: string): Observable<ContentUnitResponse[]> {

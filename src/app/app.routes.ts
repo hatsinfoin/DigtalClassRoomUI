@@ -167,6 +167,16 @@ export const routes: Routes = [
             path: 'lesson/:lessonId/upload',
             loadComponent: () => import('./features/teacher/content/resource-uploader/resource-uploader.component')
               .then(m => m.ResourceUploaderComponent)
+          },
+          {
+            path: 'chapter/create',
+            loadComponent: () => import('./features/teacher/content/chapter-editor/chapter-editor.component')
+              .then(m => m.ChapterEditorComponent)
+          },
+          {
+            path: 'chapter/:lessonId/edit',
+            loadComponent: () => import('./features/teacher/content/chapter-editor/chapter-editor.component')
+              .then(m => m.ChapterEditorComponent)
           }
         ]
       },

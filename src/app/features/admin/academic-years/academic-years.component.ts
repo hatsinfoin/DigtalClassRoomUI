@@ -93,8 +93,8 @@ import { UxStateContainerComponent, UxStateType } from '../../../shared/componen
 
       <!-- Confirmation Modal for Activate / Deactivate -->
       @if (showConfirmModal() && selectedYearForToggle()) {
-        <div class="modal-overlay" (click)="closeConfirmModal()">
-          <div class="modal-dialog toggle-confirm-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog toggle-confirm-dialog">
             <div class="modal-header">
               <h2 [style.color]="isYearActive(selectedYearForToggle()!) ? '#FF6B6B' : '#00D9A3'">
                 {{ isYearActive(selectedYearForToggle()!) ? '⚠️ Deactivate Academic Session' : '⚡ Activate Academic Session' }}
@@ -139,8 +139,8 @@ import { UxStateContainerComponent, UxStateType } from '../../../shared/componen
 
       <!-- Modal: Create / Edit Academic Session -->
       @if (showModal()) {
-        <div class="modal-overlay" (click)="closeModal()">
-          <div class="modal-dialog edit-academic-modal" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog edit-academic-modal">
             <div class="modal-header">
               <h2>{{ editingYearId() ? '✏️ Edit Academic Session' : '➕ New Academic Session' }}</h2>
               <button class="close-btn" (click)="closeModal()">✕</button>

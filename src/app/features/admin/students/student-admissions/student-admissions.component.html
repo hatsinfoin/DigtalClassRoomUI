@@ -184,6 +184,9 @@
                     <button class="btn-action btn-reset" title="Reset Student Password" (click)="resetPassword(stu)">
                       🔑
                     </button>
+                    <button class="btn-action btn-delete" title="Delete Student Enrollment" (click)="deleteStudent(stu)">
+                      🗑️
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -195,14 +198,35 @@
   }
 
   <!-- ──────────────────────────────────────────────────────────────
-       INDIVIDUAL ADMISSION MODAL
+       3-STEP INDIVIDUAL ADMISSION WIZARD MODAL
        ────────────────────────────────────────────────────────────── -->
   @if (showEnrollModal()) {
-    <div class="modal-overlay" (click)="closeEnrollModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-dialog modal-large">
         <div class="modal-header">
-          <h2>New Student Admission</h2>
+          <div class="modal-title-lock">
+            <h2>New Student Admission & Enrollment</h2>
+            <span class="role-badge">3-Step Wizard</span>
+          </div>
           <button class="close-btn" (click)="closeEnrollModal()">✕</button>
+        </div>
+
+        <!-- 3-Step Stepper Progress Bar -->
+        <div class="wizard-stepper">
+          <div class="step-item" [class.active]="enrollmentStep() === 1" [class.completed]="enrollmentStep() > 1">
+            <span class="step-number">{{ enrollmentStep() > 1 ? '✓' : '1' }}</span>
+            <span class="step-label">Student Details</span>
+          </div>
+          <div class="step-divider" [class.completed]="enrollmentStep() > 1"></div>
+          <div class="step-item" [class.active]="enrollmentStep() === 2" [class.completed]="enrollmentStep() > 2">
+            <span class="step-number">{{ enrollmentStep() > 2 ? '✓' : '2' }}</span>
+            <span class="step-label">Parent & Sibling Link</span>
+          </div>
+          <div class="step-divider" [class.completed]="enrollmentStep() === 3"></div>
+          <div class="step-item" [class.active]="enrollmentStep() === 3" [class.completed]="enrollmentStep() === 3">
+            <span class="step-number">{{ enrollmentStep() === 3 ? '✓' : '3' }}</span>
+            <span class="step-label">User Creation</span>
+          </div>
         </div>
 
         @if (modalErrorMessage()) {
@@ -213,99 +237,238 @@
           </div>
         }
 
-        <form [formGroup]="enrollForm" (ngSubmit)="saveEnrollment()">
-          <div class="form-grid">
-            <div class="form-group full-width">
-              <label>Student Full Name * (Bilingual / Telugu NFC)</label>
-              <input formControlName="name" placeholder="e.g. Rahul Sharma / రాహుల్ శర్మ" />
+        <!-- STEP 1: Student Details -->
+        @if (enrollmentStep() === 1) {
+          <form [formGroup]="enrollForm" (ngSubmit)="goToStep2()">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Student Full Name * (Telugu NFC Support)</label>
+                <input formControlName="name" placeholder="e.g. Rahul Sharma / రాహుల్ శర్మ" />
+              </div>
+
+              <div class="form-group">
+                <label>Standard / Class *</label>
+                <select formControlName="standardId">
+                  <option value="">-- Choose Class --</option>
+                  @for (std of standards(); track std.id) {
+                    <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Section *</label>
+                <select formControlName="section">
+                  <option value="A">Section A</option>
+                  <option value="B">Section B</option>
+                  <option value="C">Section C</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Roll Number * <span style="font-size: 0.72rem; color: #818cf8; font-weight: normal; margin-left: 4px;">⚡ Auto-Generated</span></label>
+                <input formControlName="rollNumber" readonly style="cursor: not-allowed; background: rgba(255,255,255,0.06); color: #cbd5e1;" placeholder="Auto-generating..." />
+              </div>
+
+              <div class="form-group">
+                <label>Gender *</label>
+                <select formControlName="gender">
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Date of Birth *</label>
+                <input formControlName="dob" type="date" />
+              </div>
+
+              <div class="form-group full-width">
+                <label>Student Email (Optional)</label>
+                <input formControlName="email" type="email" placeholder="student@school.org" />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Standard / Class *</label>
-              <select formControlName="standardId">
-                <option value="">-- Choose Class --</option>
-                @for (std of standards(); track std.id) {
-                  <option [value]="std.id">Std {{ std.standardNumber }} - {{ std.name }}</option>
-                }
-              </select>
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="closeEnrollModal()">Cancel</button>
+              <button type="button" class="btn-primary" [disabled]="!isStep1Valid()" (click)="goToStep2()">
+                Proceed to Parent Details →
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- STEP 2: Parent Details & Sibling Auto-Link -->
+        @if (enrollmentStep() === 2) {
+          <form [formGroup]="enrollForm" (ngSubmit)="saveEnrollment()">
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Primary Parent Phone (IDOR Key) *</label>
+                <input
+                  formControlName="parentPhone"
+                  placeholder="10-digit mobile number (e.g. 9848011223)"
+                  (input)="onParentPhoneChange($any($event.target).value)"
+                />
+              </div>
+
+              <!-- Smart Existing Parent Sibling Detection Banner -->
+              @if (detectedExistingParent()) {
+                <div class="sibling-detected-box full-width">
+                  <span class="icon">💡</span>
+                  <div class="text">
+                    <div class="detection-header">
+                      <strong>Existing Parent Profile Detected:</strong>
+                      <span class="parent-highlight">{{ detectedExistingParent()?.name }} ({{ detectedExistingParent()?.relation }})</span>
+                    </div>
+                    <p class="detection-subtext">
+                      Currently has <strong>{{ detectedExistingParent()?.childrenCount }}</strong> child(ren) enrolled in this school. This student will be automatically linked as a sibling.
+                    </p>
+
+                    @if (detectedExistingParent()?.siblings && (detectedExistingParent()?.siblings)!.length > 0) {
+                      <div class="siblings-list-container">
+                        <span class="siblings-label">Enrolled Siblings in School:</span>
+                        <div class="siblings-chips-grid">
+                          @for (sib of detectedExistingParent()?.siblings; track sib.id || sib.rollNumber) {
+                            <div class="sibling-chip">
+                              <span class="sib-avatar">🧑‍🎓</span>
+                              <div class="sib-info">
+                                <span class="sib-name">{{ sib.name }}</span>
+                                <div class="sib-meta">
+                                  <span class="sib-class">Class {{ sib.standardNumber ? (sib.standardNumber + '-' + sib.section) : sib.section }}</span>
+                                  @if (sib.rollNumber) {
+                                    <span class="sib-roll">Roll: {{ sib.rollNumber }}</span>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="form-group">
+                <label>
+                  <span>Parent / Guardian Full Name *</span>
+                  @if (detectedExistingParent()) {
+                    <span class="badge-autolink">🔒 Auto-linked</span>
+                  }
+                </label>
+                <input formControlName="parentName" placeholder="e.g. Ravi Kumar / రవి కుమార్" />
+              </div>
+
+              <div class="form-group">
+                <label>Relationship *</label>
+                <select formControlName="parentRelation">
+                  <option value="FATHER">Father</option>
+                  <option value="MOTHER">Mother</option>
+                  <option value="GUARDIAN">Guardian</option>
+                  <option value="PARENT">Parent</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Alternate Contact Phone</label>
+                <input formControlName="alternatePhone" placeholder="Optional phone number" />
+              </div>
+
+              <div class="form-group">
+                <label>Occupation</label>
+                <input formControlName="occupation" placeholder="e.g. Software Engineer / Farmer" />
+              </div>
+
+              <div class="form-group">
+                <label>Preferred Communication Language</label>
+                <select formControlName="preferredLanguage">
+                  <option value="TELUGU">Telugu (తెలుగు)</option>
+                  <option value="ENGLISH">English</option>
+                  <option value="HINDI">Hindi (हिन्दी)</option>
+                </select>
+              </div>
+
+              <div class="form-group full-width">
+                <label>Residential Address</label>
+                <textarea formControlName="address" rows="2" placeholder="House no, Street, Village/City, District"></textarea>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Section *</label>
-              <select formControlName="section">
-                <option value="A">Section A</option>
-                <option value="B">Section B</option>
-                <option value="C">Section C</option>
-              </select>
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="goToStep1()">← Previous Step</button>
+              <button type="submit" class="btn-primary" [disabled]="enrollForm.invalid || isSubmitting()">
+                {{ isSubmitting() ? 'Enrolling & Creating User...' : 'Create User & Enroll Student' }}
+              </button>
+            </div>
+          </form>
+        }
+
+        <!-- STEP 3: User Creation & Credentials Summary -->
+        @if (enrollmentStep() === 3 && createdCredentials()) {
+          <div class="credentials-summary-view">
+            <div class="success-hero">
+              <div class="success-icon">✓</div>
+              <h3>Student Enrolled & User Accounts Created!</h3>
+              <p>Account credentials have been provisioned in the school tenant.</p>
             </div>
 
-            <div class="form-group">
-              <label>Roll Number *</label>
-              <input formControlName="rollNumber" placeholder="e.g. 10-A-01" />
-            </div>
-
-            <div class="form-group">
-              <label>Gender *</label>
-              <select formControlName="gender">
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Date of Birth *</label>
-              <input formControlName="dob" type="date" />
-            </div>
-
-            <div class="form-group">
-              <label>Parent Phone (IDOR Key) *</label>
-              <input
-                formControlName="parentPhone"
-                placeholder="10-digit mobile (e.g. 9848011223)"
-                (input)="onParentPhoneChange($any($event.target).value)"
-              />
-            </div>
-
-            <!-- Smart Existing Parent Sibling Detection Card -->
-            @if (detectedExistingParent()) {
-              <div class="sibling-detected-box full-width">
-                <span class="icon">💡</span>
-                <div class="text">
-                  <strong>Existing Parent Profile Detected:</strong>
-                  {{ detectedExistingParent()?.name }} ({{ detectedExistingParent()?.relation }}) with {{ detectedExistingParent()?.childrenCount }} child(ren) currently enrolled in this school. This student will be automatically linked as a sibling.
+            <div class="credentials-grid">
+              <!-- Student Credential Card -->
+              <div class="credential-card glass-panel">
+                <div class="card-header">
+                  <span class="badge-role">ROLE_STUDENT</span>
+                  <h4>Student Account</h4>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Student Name:</span>
+                  <strong>{{ createdCredentials()?.studentName }} (Roll: {{ createdCredentials()?.rollNumber }})</strong>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Generated Username:</span>
+                  <code class="cred-code">{{ createdCredentials()?.username }}</code>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Temporary Password:</span>
+                  <code class="cred-code">{{ createdCredentials()?.tempPassword }}</code>
+                  <button type="button" class="btn-copy" (click)="copyCredentials(createdCredentials()?.tempPassword)">
+                    📋 Copy
+                  </button>
                 </div>
               </div>
-            }
 
-            <div class="form-group">
-              <label>Parent / Guardian Name</label>
-              <input formControlName="parentName" placeholder="e.g. V. Srinivasa Rao / వి. శ్రీనివాసరావు" />
+              <!-- Parent Credential Card -->
+              <div class="credential-card glass-panel">
+                <div class="card-header">
+                  <span class="badge-role parent">ROLE_PARENT</span>
+                  <h4>Parent Account</h4>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Status:</span>
+                  <strong>{{ createdCredentials()?.isExistingParent ? 'Linked to Existing Parent' : 'New Parent Profile Created' }}</strong>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Parent Name:</span>
+                  <span>{{ createdCredentials()?.parentName || 'Parent Profile' }}</span>
+                </div>
+                <div class="cred-row">
+                  <span class="cred-label">Primary Login Phone:</span>
+                  <code class="cred-code">{{ createdCredentials()?.parentPhone }}</code>
+                </div>
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Relationship</label>
-              <select formControlName="parentRelation">
-                <option value="FATHER">Father</option>
-                <option value="MOTHER">Mother</option>
-                <option value="GUARDIAN">Guardian</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-
-            <div class="form-group full-width">
-              <label>Student / Parent Email (Optional)</label>
-              <input formControlName="email" type="email" placeholder="student@school.org" />
+            <div class="modal-footer">
+              <button type="button" class="btn-secondary" (click)="copyCredentials(createdCredentials()?.username + ' / ' + createdCredentials()?.tempPassword)">
+                📋 Copy All Details
+              </button>
+              <button type="button" class="btn-primary" (click)="closeEnrollModal()">
+                Done
+              </button>
             </div>
           </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeEnrollModal()">Cancel</button>
-            <button type="submit" class="btn-primary" [disabled]="enrollForm.invalid || isSubmitting()">
-              {{ isSubmitting() ? 'Enrolling...' : 'Confirm Admission' }}
-            </button>
-          </div>
-        </form>
+        }
       </div>
     </div>
   }
@@ -314,8 +477,8 @@
        EDIT STUDENT MODAL
        ────────────────────────────────────────────────────────────── -->
   @if (showEditStudentModal()) {
-    <div class="modal-overlay" (click)="closeEditStudentModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-dialog">
         <div class="modal-header">
           <h2>Edit Student Details</h2>
           <button class="close-btn" (click)="closeEditStudentModal()">✕</button>
@@ -399,8 +562,8 @@
        PARENT PROFILE & MULTI-CHILD SIBLINGS MANAGEMENT MODAL
        ────────────────────────────────────────────────────────────── -->
   @if (showParentModal() && activeParent()) {
-    <div class="modal-overlay" (click)="closeParentModal()">
-      <div class="modal-dialog modal-large" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-dialog modal-large">
         <div class="modal-header">
           <div class="modal-title-lock">
             <h2>Parent Profile & Linked Siblings</h2>
@@ -468,20 +631,101 @@
                 </button>
               </div>
 
-              <!-- Inline Link Sibling Selector Form -->
+              <!-- Inline Link Sibling Selector Form with Searchable Picker -->
               @if (showLinkSiblingForm()) {
                 <div class="link-sibling-picker glass-panel">
-                  <h4>Attach Enrolled Student as Sibling:</h4>
-                  <div class="picker-controls">
-                    <select [(ngModel)]="selectedStudentToLink">
-                      @for (stu of availableStudentsToLink(); track stu.id) {
-                        <option [value]="stu.id">{{ stu.name }} (Std {{ stu.standardNumber }}-{{ stu.section }}, Roll: {{ stu.rollNumber }})</option>
+                  <div class="picker-header">
+                    <h4>Attach Enrolled Student as Sibling:</h4>
+                    <span class="picker-hint">Type name, roll number, class or phone to find student</span>
+                  </div>
+
+                  <div class="searchable-student-select">
+                    <!-- Search Input & Dropdown Toggle -->
+                    <div class="search-input-box" [class.is-open]="isSiblingDropdownOpen()" (click)="openSiblingDropdown()">
+                      <span class="search-icon">🔍</span>
+                      <input
+                        type="text"
+                        [ngModel]="siblingSearchText()"
+                        (ngModelChange)="onSiblingSearchChange($event)"
+                        (focus)="openSiblingDropdown()"
+                        placeholder="Search student by name, roll no, class, or phone..."
+                      />
+                      @if (siblingSearchText()) {
+                        <button type="button" class="btn-clear-search" (click)="clearSiblingSearch($event)" title="Clear search">
+                          ✕
+                        </button>
                       }
-                    </select>
-                    <button class="btn-primary" [disabled]="!selectedStudentToLink() || isSubmitting()" (click)="confirmLinkSibling()">
+                      <button type="button" class="btn-dropdown-arrow" (click)="toggleSiblingDropdown($event)" title="Toggle list">
+                        ▾
+                      </button>
+                    </div>
+
+                    <!-- Dropdown Results Menu -->
+                    @if (isSiblingDropdownOpen()) {
+                      <div class="dropdown-menu-list">
+                        @if (isLoadingAvailableStudents()) {
+                          <div class="dropdown-loading-state">
+                            <span class="loading-text">Loading available students...</span>
+                          </div>
+                        } @else if (filteredStudentsToLink().length === 0) {
+                          <div class="dropdown-empty-state">
+                            <span>No matching students found</span>
+                            @if (siblingSearchText()) {
+                              <small>Try a different keyword</small>
+                            }
+                          </div>
+                        } @else {
+                          <div class="dropdown-scroll-list">
+                            @for (stu of filteredStudentsToLink(); track stu.id) {
+                              <div
+                                class="dropdown-item"
+                                [class.selected]="isStudentSelected(stu.id)"
+                                (click)="selectStudentToLink(stu, $event)"
+                              >
+                                <div class="item-avatar">🎓</div>
+                                <div class="item-info">
+                                  <div class="item-name">{{ stu.name | teluguNfc }}</div>
+                                  <div class="item-meta">
+                                    <span class="meta-tag">Std {{ stu.standardNumber }}-{{ stu.section }}</span>
+                                    <span class="meta-dot">•</span>
+                                    <span>Roll: {{ stu.rollNumber }}</span>
+                                    @if (stu.parentPhone) {
+                                      <span class="meta-dot">•</span>
+                                      <span>📱 {{ stu.parentPhone }}</span>
+                                    }
+                                  </div>
+                                </div>
+                                @if (isStudentSelected(stu.id)) {
+                                  <span class="item-check">✓</span>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <!-- Selected Student Preview Banner -->
+                    @if (selectedStudentDetails(); as selStu) {
+                      <div class="selected-student-banner">
+                        <span class="banner-label">Selected Sibling:</span>
+                        <strong class="banner-name">{{ selStu.name | teluguNfc }}</strong>
+                        <span class="banner-badge">Std {{ selStu.standardNumber }}-{{ selStu.section }} (Roll: {{ selStu.rollNumber }})</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="picker-actions">
+                    <button
+                      class="btn-primary"
+                      [disabled]="!selectedStudentToLink() || isSubmitting() || isLoadingAvailableStudents()"
+                      (click)="confirmLinkSibling()"
+                    >
                       Confirm Link
                     </button>
-                    <button class="btn-secondary" (click)="showLinkSiblingForm.set(false)">Cancel</button>
+                    <button class="btn-secondary" (click)="closeLinkSiblingSection()">
+                      Cancel
+                    </button>
                   </div>
                 </div>
               }
@@ -576,8 +820,8 @@
        BULK CSV INTAKE MODAL
        ────────────────────────────────────────────────────────────── -->
   @if (showBulkModal()) {
-    <div class="modal-overlay" (click)="closeBulkModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-overlay">
+      <div class="modal-dialog">
         <div class="modal-header">
           <h2>Bulk CSV Intake</h2>
           <button class="close-btn" (click)="closeBulkModal()">✕</button>

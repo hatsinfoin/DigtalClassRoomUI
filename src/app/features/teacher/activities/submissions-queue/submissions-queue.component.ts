@@ -105,8 +105,8 @@ interface StudentSubmissionItem {
 
         <!-- Override Modal if active -->
         @if (activeOverride()) {
-          <div class="modal-backdrop" (click)="activeOverride.set(null)">
-            <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+          <div class="modal-backdrop">
+            <div class="modal-card glass-card">
               <h3 class="modal-title">Manual Score Override (Gap G4)</h3>
               <p class="modal-sub">Student: {{ activeOverride()?.studentName }} (Roll {{ activeOverride()?.rollNumber }})</p>
 

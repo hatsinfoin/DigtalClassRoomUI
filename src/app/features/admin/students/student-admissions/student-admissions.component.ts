@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { of } from 'rxjs';
@@ -92,9 +92,53 @@ export class StudentAdmissionsComponent implements OnInit {
   siblingSearchPhone = signal<string>('');
   availableStudentsToLink = signal<StudentRosterItem[]>([]);
   selectedStudentToLink = signal<string>('');
+  siblingSearchText = signal<string>('');
+  isSiblingDropdownOpen = signal<boolean>(false);
+  isLoadingAvailableStudents = signal<boolean>(false);
 
-  // Sibling Auto-Detection Hint
-  detectedExistingParent = signal<{ name: string; relation: string; childrenCount: number } | null>(null);
+  filteredStudentsToLink = computed(() => {
+    const q = this.siblingSearchText().trim().toLowerCase();
+    const list = this.availableStudentsToLink();
+    if (!q) return list;
+    return list.filter(stu => {
+      const name = (stu.name || '').toLowerCase();
+      const roll = (stu.rollNumber || '').toLowerCase();
+      const section = (stu.section || '').toLowerCase();
+      const stdNum = String(stu.standardNumber || '');
+      const phone = (stu.parentPhone || '').toLowerCase();
+      return name.includes(q) || roll.includes(q) || section.includes(q) || stdNum.includes(q) || phone.includes(q);
+    });
+  });
+
+  selectedStudentDetails = computed(() => {
+    const selId = this.selectedStudentToLink();
+    if (!selId) return null;
+    return this.availableStudentsToLink().find(s => String(s.id) === String(selId)) || null;
+  });
+
+  // Sibling Auto-Detection Hint & 3-Step Wizard
+  detectedExistingParent = signal<{
+    name: string;
+    relation: string;
+    childrenCount: number;
+    siblings?: Array<{
+      id?: string | number;
+      name: string;
+      rollNumber?: string;
+      standardNumber?: number | string;
+      section?: string;
+    }>;
+  } | null>(null);
+  enrollmentStep = signal<1 | 2 | 3>(1);
+  createdCredentials = signal<{
+    username: string;
+    tempPassword?: string;
+    studentName: string;
+    rollNumber: string;
+    parentPhone: string;
+    parentName?: string;
+    isExistingParent?: boolean;
+  } | null>(null);
 
   // Forms
   enrollForm: FormGroup = this.fb.group({
@@ -105,10 +149,15 @@ export class StudentAdmissionsComponent implements OnInit {
     rollNumber: ['', Validators.required],
     gender: ['MALE', Validators.required],
     dob: ['2012-05-15', Validators.required],
+    email: [''],
+    // Parent Details
     parentPhone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
     parentName: [''],
-    parentRelation: ['FATHER'],
-    email: ['']
+    parentRelation: ['FATHER', Validators.required],
+    alternatePhone: [''],
+    occupation: [''],
+    address: [''],
+    preferredLanguage: ['TELUGU']
   });
 
   editStudentForm: FormGroup = this.fb.group({
@@ -141,6 +190,16 @@ export class StudentAdmissionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeSchoolScope();
+    this.enrollForm.get('standardId')?.valueChanges.subscribe(() => {
+      if (this.showEnrollModal()) {
+        this.autoFetchRollNumber();
+      }
+    });
+    this.enrollForm.get('section')?.valueChanges.subscribe(() => {
+      if (this.showEnrollModal()) {
+        this.autoFetchRollNumber();
+      }
+    });
   }
 
   // Toast Helper
@@ -271,6 +330,10 @@ export class StudentAdmissionsComponent implements OnInit {
 
         const mappedRoster: StudentRosterItem[] = (data || []).map(stu => {
           const matchingPhone = (data || []).filter(s => s.parentPhone && s.parentPhone === stu.parentPhone);
+          const computedSiblings = stu.siblingCount !== undefined && stu.siblingCount !== null
+            ? Number(stu.siblingCount)
+            : (matchingPhone.length > 0 ? matchingPhone.length : 1);
+
           return {
             id: stu.id,
             name: stu.name,
@@ -285,7 +348,7 @@ export class StudentAdmissionsComponent implements OnInit {
             dob: stu.dob || '2012-05-15',
             email: stu.email || '',
             status: 'ACTIVE',
-            siblingCount: matchingPhone.length > 0 ? matchingPhone.length : 1
+            siblingCount: computedSiblings
           };
         });
 
@@ -308,13 +371,15 @@ export class StudentAdmissionsComponent implements OnInit {
   }
 
   // ──────────────────────────────────────────────────────────────
-  // INDIVIDUAL ADMISSION WORKFLOW (With Sibling Auto-Detection)
+  // 3-STEP INDIVIDUAL ADMISSION WORKFLOW (With Sibling Auto-Detection)
   // ──────────────────────────────────────────────────────────────
   openEnrollModal(): void {
     const schoolId = this.selectedSchoolId();
     const stdList = this.standards();
     this.detectedExistingParent.set(null);
     this.modalErrorMessage.set(null);
+    this.enrollmentStep.set(1);
+    this.createdCredentials.set(null);
 
     this.enrollForm.reset({
       schoolId: schoolId,
@@ -324,34 +389,160 @@ export class StudentAdmissionsComponent implements OnInit {
       rollNumber: '',
       gender: 'MALE',
       dob: '2012-05-15',
+      email: '',
       parentPhone: '',
       parentName: '',
       parentRelation: 'FATHER',
-      email: ''
+      alternatePhone: '',
+      occupation: '',
+      address: '',
+      preferredLanguage: 'TELUGU'
     });
     this.showEnrollModal.set(true);
+    this.autoFetchRollNumber();
+  }
+
+
+  autoFetchRollNumber(): void {
+    const standardId = this.enrollForm.get('standardId')?.value;
+    const section = this.enrollForm.get('section')?.value || 'A';
+    const schoolId = this.selectedSchoolId();
+    if (standardId && section) {
+      this.adminService.getNextRollNumber(standardId, section, '2026-2027', schoolId).subscribe({
+        next: (res) => {
+          if (res && res.suggestedRollNumber) {
+            this.enrollForm.patchValue({ rollNumber: res.suggestedRollNumber }, { emitEvent: false });
+          }
+        },
+        error: (err) => {
+          console.warn('Could not auto-generate roll number', err);
+        }
+      });
+    }
   }
 
   closeEnrollModal(): void {
     this.showEnrollModal.set(false);
     this.detectedExistingParent.set(null);
     this.modalErrorMessage.set(null);
+    this.enrollmentStep.set(1);
+    this.createdCredentials.set(null);
+  }
+
+  isStep1Valid(): boolean {
+    const f = this.enrollForm;
+    return !!(
+      f.get('standardId')?.valid &&
+      f.get('section')?.valid &&
+      f.get('name')?.valid &&
+      f.get('rollNumber')?.valid &&
+      f.get('gender')?.valid &&
+      f.get('dob')?.valid
+    );
+  }
+
+  goToStep2(): void {
+    if (!this.isStep1Valid()) {
+      this.modalErrorMessage.set('Please fill all required student details in Step 1.');
+      return;
+    }
+    this.modalErrorMessage.set(null);
+    this.enrollmentStep.set(2);
+  }
+
+  goToStep1(): void {
+    this.modalErrorMessage.set(null);
+    this.enrollmentStep.set(1);
   }
 
   onParentPhoneChange(phone: string): void {
-    if (!phone || phone.length < 10) {
+    if (!phone || phone.trim().length < 10) {
       this.detectedExistingParent.set(null);
       return;
     }
-    // Check if phone exists in active roster
-    const matching = this.roster().filter(m => m.parentPhone === phone);
+
+    const cleanPhone = phone.trim();
+    // 1. Check if parent profile exists on server
+    this.adminService.getParentProfile(cleanPhone, this.selectedSchoolId()).subscribe({
+      next: (profile: any) => {
+        // Strict verification: only consider as existing parent if real data (name, id, or linked students) is returned
+        const isValidParent = Boolean(
+          profile &&
+          !profile.error &&
+          profile.status !== 'NOT_FOUND' &&
+          profile.status !== 404 &&
+          profile.found !== false &&
+          (
+            (profile.name && typeof profile.name === 'string' && profile.name.trim().length > 0 && profile.name.trim() !== 'Existing Parent') ||
+            (profile.linkedStudents && Array.isArray(profile.linkedStudents) && profile.linkedStudents.length > 0) ||
+            (profile.children && Array.isArray(profile.children) && profile.children.length > 0)
+          )
+        );
+
+        if (isValidParent) {
+          const parentName = (profile.name || profile.parentName || profile.guardianName || '').trim();
+          const relation = profile.relation || profile.parentRelation || 'FATHER';
+          const rawSiblings = profile.linkedStudents || profile.children || [];
+          const siblings = rawSiblings.map((s: any) => ({
+            id: s.id || s.studentId,
+            name: s.name || s.studentName || 'Student',
+            rollNumber: s.rollNumber || s.rollNo || '',
+            standardNumber: s.standardNumber || s.standardName || s.grade || '',
+            section: s.section || 'A'
+          }));
+          const childrenCount = siblings.length > 0 ? siblings.length : (profile.childrenCount || 1);
+
+          this.detectedExistingParent.set({
+            name: parentName || 'Parent',
+            relation: relation,
+            childrenCount: childrenCount,
+            siblings: siblings
+          });
+          this.enrollForm.patchValue({
+            parentName: parentName,
+            parentRelation: relation,
+            alternatePhone: profile.alternatePhone || '',
+            occupation: profile.occupation || '',
+            address: profile.address || '',
+            preferredLanguage: profile.preferredLanguage || 'TELUGU'
+          });
+        } else {
+          // If server didn't find a valid parent, check local roster fallback
+          this.checkRosterForExistingParent(cleanPhone);
+        }
+      },
+      error: () => {
+        // Fallback: Check active roster
+        this.checkRosterForExistingParent(cleanPhone);
+      }
+    });
+  }
+
+  private checkRosterForExistingParent(cleanPhone: string): void {
+    const matching = this.roster().filter(m =>
+      m.parentPhone &&
+      m.parentPhone.trim() === cleanPhone &&
+      m.parentName &&
+      m.parentName.trim().length > 0 &&
+      m.parentName.trim() !== 'Existing Parent'
+    );
+
     if (matching.length > 0) {
-      const parentName = matching[0].parentName || 'Existing Parent';
+      const parentName = matching[0].parentName!.trim();
       const relation = matching[0].parentRelation || 'FATHER';
+      const siblings = matching.map(m => ({
+        id: m.id,
+        name: m.name || 'Student',
+        rollNumber: m.rollNumber || '',
+        standardNumber: m.standardNumber || '',
+        section: m.section || 'A'
+      }));
+
       this.detectedExistingParent.set({
         name: parentName,
         relation: relation,
-        childrenCount: matching.length
+        childrenCount: matching.length,
+        siblings: siblings
       });
       this.enrollForm.patchValue({
         parentName: parentName,
@@ -363,7 +554,10 @@ export class StudentAdmissionsComponent implements OnInit {
   }
 
   saveEnrollment(): void {
-    if (this.enrollForm.invalid) return;
+    if (this.enrollForm.invalid) {
+      this.modalErrorMessage.set('Please fill all required fields before completing admission.');
+      return;
+    }
     this.isSubmitting.set(true);
     this.modalErrorMessage.set(null);
     const formVal = this.enrollForm.value as StudentEnrollmentRequest;
@@ -371,8 +565,18 @@ export class StudentAdmissionsComponent implements OnInit {
     this.adminService.enrollStudent(formVal).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
-        this.showToast('success', `Student ${formVal.name} enrolled successfully! (Roll: ${formVal.rollNumber})`);
-        this.closeEnrollModal();
+        this.createdCredentials.set({
+          username: res.username || `${formVal.name.toLowerCase().replace(/\s+/g, '')}_${formVal.rollNumber}`,
+          tempPassword: res.tempPassword || 'password123',
+          studentName: formVal.name,
+          rollNumber: formVal.rollNumber,
+          parentPhone: formVal.parentPhone,
+          parentName: formVal.parentName,
+          isExistingParent: !!this.detectedExistingParent()
+        });
+        this.enrollmentStep.set(3);
+        this.showToast('success', `Student ${formVal.name} enrolled successfully!`);
+
         if (this.hasSearched() && String(this.selectedStandardId()) === String(formVal.standardId)) {
           this.onSearch();
         }
@@ -384,6 +588,15 @@ export class StudentAdmissionsComponent implements OnInit {
         this.showToast('error', errMsg);
       }
     });
+  }
+
+  copyCredentials(text?: string): void {
+    if (!text) return;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.showToast('success', 'Credentials copied to clipboard!');
+      });
+    }
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -498,6 +711,8 @@ export class StudentAdmissionsComponent implements OnInit {
     this.activeParent.set(null);
     this.isEditingParent.set(false);
     this.showLinkSiblingForm.set(false);
+    this.isSiblingDropdownOpen.set(false);
+    this.siblingSearchText.set('');
     this.modalErrorMessage.set(null);
   }
 
@@ -543,13 +758,94 @@ export class StudentAdmissionsComponent implements OnInit {
     });
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.searchable-student-select')) {
+      this.isSiblingDropdownOpen.set(false);
+    }
+  }
+
   openLinkSiblingSection(): void {
     this.modalErrorMessage.set(null);
-    const currentLinkedIds = (this.activeParent()?.linkedStudents || []).map(s => String(s.id));
-    const available = this.roster().filter(m => !currentLinkedIds.includes(String(m.id)));
-    this.availableStudentsToLink.set(available);
-    this.selectedStudentToLink.set(available[0]?.id ? String(available[0].id) : '');
+    this.siblingSearchText.set('');
+    this.isSiblingDropdownOpen.set(false);
     this.showLinkSiblingForm.set(true);
+    this.isLoadingAvailableStudents.set(true);
+
+    const currentLinkedIds = (this.activeParent()?.linkedStudents || []).map(s => String(s.id));
+    const schoolId = this.selectedSchoolId();
+
+    // Fetch school-wide students so siblings from any class/standard can be searched and linked
+    this.adminService.getStudents(undefined, undefined, schoolId).subscribe({
+      next: (students) => {
+        this.isLoadingAvailableStudents.set(false);
+        const mapped: StudentRosterItem[] = (students || []).map(stu => {
+          const std = this.standards().find(s => String(s.id) === String(stu.standardId));
+          return {
+            id: stu.id,
+            name: stu.name,
+            rollNumber: stu.rollNumber,
+            standardNumber: std ? std.standardNumber : (stu as any).standardNumber || 0,
+            standardId: stu.standardId,
+            section: stu.section,
+            parentPhone: stu.parentPhone,
+            parentName: (stu as any).parentName || '',
+            parentRelation: (stu as any).parentRelation || 'FATHER',
+            gender: String(stu.gender || 'MALE'),
+            dob: stu.dob || '2012-05-15',
+            email: stu.email || '',
+            status: 'ACTIVE'
+          };
+        }).filter(m => !currentLinkedIds.includes(String(m.id)));
+
+        this.availableStudentsToLink.set(mapped);
+        this.selectedStudentToLink.set(mapped.length > 0 ? String(mapped[0].id) : '');
+      },
+      error: () => {
+        this.isLoadingAvailableStudents.set(false);
+        const available = this.roster().filter(m => !currentLinkedIds.includes(String(m.id)));
+        this.availableStudentsToLink.set(available);
+        this.selectedStudentToLink.set(available.length > 0 ? String(available[0].id) : '');
+      }
+    });
+  }
+
+  closeLinkSiblingSection(): void {
+    this.showLinkSiblingForm.set(false);
+    this.isSiblingDropdownOpen.set(false);
+    this.siblingSearchText.set('');
+  }
+
+  onSiblingSearchChange(val: string): void {
+    this.siblingSearchText.set(val);
+    this.isSiblingDropdownOpen.set(true);
+  }
+
+  openSiblingDropdown(): void {
+    this.isSiblingDropdownOpen.set(true);
+  }
+
+  toggleSiblingDropdown(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.isSiblingDropdownOpen.update(v => !v);
+  }
+
+  clearSiblingSearch(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.siblingSearchText.set('');
+    this.isSiblingDropdownOpen.set(true);
+  }
+
+  selectStudentToLink(stu: StudentRosterItem, event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.selectedStudentToLink.set(String(stu.id));
+    this.isSiblingDropdownOpen.set(false);
+  }
+
+  isStudentSelected(stuId: string | number | undefined): boolean {
+    if (stuId === undefined || stuId === null) return false;
+    return String(this.selectedStudentToLink()) === String(stuId);
   }
 
   confirmLinkSibling(): void {
@@ -660,6 +956,28 @@ export class StudentAdmissionsComponent implements OnInit {
       },
       error: (err) => {
         const errMsg = this.extractErrorMessage(err, 'Failed to reset student password');
+        this.showToast('error', errMsg);
+      }
+    });
+  }
+
+  deleteStudent(student: StudentRosterItem): void {
+    const confirmMsg = `Are you sure you want to delete enrollment for ${student.name} (Roll: ${student.rollNumber})? This will remove their student record and account.`;
+    if (!confirm(confirmMsg)) return;
+
+    this.isSubmitting.set(true);
+    const schoolId = this.selectedSchoolId();
+
+    this.adminService.deleteStudent(student.id, schoolId).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.showToast('success', `Student ${student.name} deleted successfully.`);
+        // Remove locally from roster
+        this.roster.update(list => list.filter(s => String(s.id) !== String(student.id)));
+      },
+      error: (err) => {
+        this.isSubmitting.set(false);
+        const errMsg = this.extractErrorMessage(err, `Failed to delete student ${student.name}`);
         this.showToast('error', errMsg);
       }
     });

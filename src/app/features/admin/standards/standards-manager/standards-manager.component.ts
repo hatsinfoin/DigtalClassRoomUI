@@ -163,8 +163,8 @@ interface SchoolStandardsGroup {
 
       <!-- Modal: Add / Edit Standard -->
       @if (showModal()) {
-        <div class="modal-overlay" (click)="closeModal()">
-          <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog">
             <div class="modal-header">
               <h2>{{ editingStandardId() ? 'Edit Standard' : 'Add Class / Standard' }}</h2>
               <button class="close-btn" (click)="closeModal()">✕</button>
@@ -275,8 +275,8 @@ interface SchoolStandardsGroup {
 
       <!-- Modal: Quick Edit School -->
       @if (showSchoolEditModal() && editingSchool()) {
-        <div class="modal-overlay" (click)="closeSchoolEditModal()">
-          <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog">
             <div class="modal-header">
               <h2>Edit Institution Details</h2>
               <button class="close-btn" (click)="closeSchoolEditModal()">✕</button>

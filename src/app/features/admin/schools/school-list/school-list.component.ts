@@ -105,8 +105,8 @@ import { UxStateContainerComponent, UxStateType } from '../../../../shared/compo
 
       <!-- Create/Edit Modal -->
       @if (showFormModal()) {
-        <div class="modal-overlay" (click)="closeFormModal()">
-          <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog">
             <div class="modal-header">
               <h2>{{ editingSchoolId() ? 'Edit Institution' : 'Add New Institution' }}</h2>
               <button class="close-btn" (click)="closeFormModal()">✕</button>
@@ -218,8 +218,8 @@ import { UxStateContainerComponent, UxStateType } from '../../../../shared/compo
 
       <!-- Guarded Delete Modal with Verification -->
       @if (showDeleteModal() && selectedSchoolForDelete()) {
-        <div class="modal-overlay" (click)="closeDeleteModal()">
-          <div class="modal-dialog delete-confirm-box" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog delete-confirm-box">
             <div class="modal-header">
               <h2 style="color: #FF6B6B;">⚠️ Guarded Deletion</h2>
               <button class="close-btn" (click)="closeDeleteModal()">✕</button>

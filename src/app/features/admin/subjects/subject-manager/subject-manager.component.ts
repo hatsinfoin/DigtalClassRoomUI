@@ -167,8 +167,8 @@ interface StandardSubjectsGroup {
 
       <!-- Modal: Add / Edit Subject -->
       @if (showModal()) {
-        <div class="modal-overlay" (click)="closeModal()">
-          <div class="modal-dialog edit-subject-modal" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog edit-subject-modal">
             <div class="modal-header">
               <h2>{{ editingSubjectId() ? '✏️ Edit Subject' : '➕ Add Curriculum Subject' }}</h2>
               <button class="close-btn" (click)="closeModal()">✕</button>
@@ -275,8 +275,8 @@ interface StandardSubjectsGroup {
 
       <!-- Confirmation Modal: Delete Subject -->
       @if (showDeleteModal() && selectedSubjectForDelete()) {
-        <div class="modal-overlay" (click)="closeDeleteModal()">
-          <div class="modal-dialog delete-confirm-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-overlay">
+          <div class="modal-dialog delete-confirm-dialog">
             <div class="modal-header">
               <h2 class="text-danger">⚠️ Delete Curriculum Subject</h2>
               <button class="close-btn" (click)="closeDeleteModal()">✕</button>
